@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.scss";
+import Widget from "./components/Widget";
+import Header from "./components/Header";
+import { getAllBancorLiquidityPoolTokens } from "./services/Web3Service";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    address: ""
+  };
+  setAddress = address => {
+    this.setState({ address });
+  };
+  checkAddressChange = () => {
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", accounts => {
+        if (this.state.address !== undefined) {
+          this.setAddress(accounts[0]);
+        }
+      });
+    }
+  };
+  componentDidMount() {
+    getAllBancorLiquidityPoolTokens();
+  }
+  render() {
+    this.checkAddressChange();
+    return (
+      <div className="App">
+        <Header setAddress={this.setAddress} address={this.state.address} />
+        <Widget />
+      </div>
+    );
+  }
 }
 
 export default App;

@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  padding: 20px 25px;
+  justify-content: space-between;
+  align-items: center;
+
+  .wallet-container {
+    padding: 4px 25px;
+    border: 1px solid var(--themeColor);
+    border-radius: 3rem;
+    color: var(--themeColor);
+    font-size: 0.9rem;
+    background-color: transparent;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+
+    .address-container {
+      display: flex;
+      align-items: center;
+      .address-blockie {
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        margin-left: 10px;
+      }
+    }
+  }
+  .connected {
+    color: var(--labelColor);
+    border: 1px solid var(--bodyBg);
+  }
+}
