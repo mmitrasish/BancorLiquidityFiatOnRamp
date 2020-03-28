@@ -2,10 +2,16 @@ import React from "react";
 import "./pool_liquidity_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { getTokenRate, calculateFundCost } from "../../services/Web3Service";
+import {
+  getTokenRate,
+  calculateFundCost,
+  getBalances
+} from "../../services/Web3Service";
+import Loader from "../Loader";
 
 function PoolLiquidityWidget(props) {
   const [tab, setTab] = React.useState(props.config.type);
+  const [loading, setLoading] = React.useState(true);
   const [rate, setRate] = React.useState(0);
   const [smartTokenRate1, setSmartTokenRate1] = React.useState(0);
   const [smartTokenRate2, setSmartTokenRate2] = React.useState(0);
@@ -23,6 +29,7 @@ function PoolLiquidityWidget(props) {
 
   React.useEffect(() => {
     getRate();
+    getReserveTokenBalances();
   }, [props.config.token]);
 
   const getRate = async () => {
@@ -50,7 +57,17 @@ function PoolLiquidityWidget(props) {
       );
       console.log(rate2);
       setSmartTokenRate2(Number.parseFloat(rate2));
+      if (loading) {
+        setLoading(false);
+      }
     }
+  };
+
+  const getReserveTokenBalances = async () => {
+    await getBalances([
+      props.config.token.connectorTokens[0].address,
+      props.config.token.connectorTokens[1].address
+    ]);
   };
 
   const changeToken1Amount = pValue => {
@@ -95,117 +112,125 @@ function PoolLiquidityWidget(props) {
           Pool Liquidity @ {props.config.token.symbol}
         </h3>
       </div>
-      <div className="widget-tabs">
-        <div className="tab-item" onClick={e => setTab("Add")}>
-          <div className={"tab-link " + (tab === "Add" ? "active" : null)}>
-            Add
+      {loading ? (
+        <Loader />
+      ) : (
+        <div>
+          <div className="widget-tabs">
+            <div className="tab-item" onClick={e => setTab("Add")}>
+              <div className={"tab-link " + (tab === "Add" ? "active" : null)}>
+                Add
+              </div>
+            </div>
+            <div className="tab-item" onClick={e => setTab("Withdraw")}>
+              <div
+                className={"tab-link " + (tab === "Withdraw" ? "active" : null)}
+              >
+                Withdraw
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="tab-item" onClick={e => setTab("Withdraw")}>
-          <div className={"tab-link " + (tab === "Withdraw" ? "active" : null)}>
-            Withdraw
-          </div>
-        </div>
-      </div>
-      <div className="pay-container">
-        <div className="pay-label">
-          <label>{tab}</label>
-        </div>
-        <div className="pay-input-container">
-          <input
-            type="number"
-            name="payAmount"
-            id="payAmount"
-            className="pay-input"
-            placeholder="0.0"
-            value={token1Amount || ""}
-            onChange={e => changeToken1Amount(e.target.value)}
-          />
-          <div className="pay-currency-container">
-            <div className="pay-currency">
-              <img
-                src={getTokenIcon(
-                  props.config.token.connectorTokens[0].address
-                )}
-                alt="token logo"
-                className="connector-token-logo"
+          <div className="pay-container">
+            <div className="pay-label">
+              <label>{tab}</label>
+            </div>
+            <div className="pay-input-container">
+              <input
+                type="number"
+                name="payAmount"
+                id="payAmount"
+                className="pay-input"
+                placeholder="0.0"
+                value={token1Amount || ""}
+                onChange={e => changeToken1Amount(e.target.value)}
               />
-              {props.config.token.connectorTokens[0].info.symbol}
-            </div>
-            <div className="pay-currency-dropdown">
-              <FontAwesomeIcon icon={faChevronDown} />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="pay-container">
-        <div className="pay-label">
-          <label>{tab}</label>
-        </div>
-        <div className="pay-input-container">
-          <input
-            type="number"
-            name="payAmount"
-            id="payAmount"
-            className="pay-input"
-            placeholder="0.0"
-            value={token2Amount || ""}
-            onChange={e => changeToken2Amount(e.target.value)}
-          />
-          <div className="pay-currency-container">
-            <div className="pay-currency">
-              <img
-                src={getTokenIcon(
-                  props.config.token.connectorTokens[1].address
-                )}
-                alt="token logo"
-                className="connector-token-logo"
-              />
-              {props.config.token.connectorTokens[1].info.symbol}
-            </div>
-            <div className="pay-currency-dropdown">
-              <FontAwesomeIcon icon={faChevronDown} />
-            </div>
-          </div>
-        </div>
-      </div>
-      {token1Amount && token1Amount ? (
-        <div className="summary-container">
-          <label className="summary-title">Summary</label>
-          <div className="summary-item">
-            <div className="full-summary">
-              <div className="full-summary-tilda">~</div>
-              <div className="full-summary-item">
-                <div>
-                  {token1Amount}{" "}
-                  {props.config.token.connectorTokens[0].info.symbol} @{" "}
-                  {Number.parseFloat(smartTokenRate1).toFixed(2)}{" "}
-                  {props.config.token.symbol}
+              <div className="pay-currency-container">
+                <div className="pay-currency">
+                  <img
+                    src={getTokenIcon(
+                      props.config.token.connectorTokens[0].address
+                    )}
+                    alt="token logo"
+                    className="connector-token-logo"
+                  />
+                  {props.config.token.connectorTokens[0].info.symbol}
                 </div>
-                <div>
-                  {token2Amount}{" "}
-                  {props.config.token.connectorTokens[1].info.symbol} @{" "}
-                  {Number.parseFloat(smartTokenRate2).toFixed(2)}{" "}
-                  {props.config.token.symbol}
+                <div className="pay-currency-dropdown">
+                  <FontAwesomeIcon icon={faChevronDown} />
                 </div>
               </div>
             </div>
-            <div className="summary-total-amount">
-              {props.config.token.symbol}{" "}
-              {getTotalSmartTokenAmount().toFixed(2)}
+          </div>
+          <div className="pay-container">
+            <div className="pay-label">
+              <label>{tab}</label>
+            </div>
+            <div className="pay-input-container">
+              <input
+                type="number"
+                name="payAmount"
+                id="payAmount"
+                className="pay-input"
+                placeholder="0.0"
+                value={token2Amount || ""}
+                onChange={e => changeToken2Amount(e.target.value)}
+              />
+              <div className="pay-currency-container">
+                <div className="pay-currency">
+                  <img
+                    src={getTokenIcon(
+                      props.config.token.connectorTokens[1].address
+                    )}
+                    alt="token logo"
+                    className="connector-token-logo"
+                  />
+                  {props.config.token.connectorTokens[1].info.symbol}
+                </div>
+                <div className="pay-currency-dropdown">
+                  <FontAwesomeIcon icon={faChevronDown} />
+                </div>
+              </div>
             </div>
           </div>
+          {token1Amount && token1Amount ? (
+            <div className="summary-container">
+              <label className="summary-title">Summary</label>
+              <div className="summary-item">
+                <div className="full-summary">
+                  <div className="full-summary-tilda">~</div>
+                  <div className="full-summary-item">
+                    <div>
+                      {token1Amount}{" "}
+                      {props.config.token.connectorTokens[0].info.symbol} @{" "}
+                      {Number.parseFloat(smartTokenRate1).toFixed(2)}{" "}
+                      {props.config.token.symbol}
+                    </div>
+                    <div>
+                      {token2Amount}{" "}
+                      {props.config.token.connectorTokens[1].info.symbol} @{" "}
+                      {Number.parseFloat(smartTokenRate2).toFixed(2)}{" "}
+                      {props.config.token.symbol}
+                    </div>
+                  </div>
+                </div>
+                <div className="summary-total-amount">
+                  {props.config.token.symbol}{" "}
+                  {getTotalSmartTokenAmount().toFixed(2)}
+                </div>
+              </div>
+            </div>
+          ) : null}
+          <div className="buy-container">
+            <button
+              type="button"
+              className="buy-button"
+              onClick={e => getTokenRate()}
+            >
+              {tab} Liquidity
+            </button>
+          </div>
         </div>
-      ) : null}
-      <div className="buy-container">
-        <button
-          type="button"
-          className="buy-button"
-          onClick={e => getTokenRate()}
-        >
-          {tab} Liquidity
-        </button>
-      </div>
+      )}
     </div>
   );
 }

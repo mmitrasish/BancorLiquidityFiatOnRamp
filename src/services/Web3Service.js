@@ -2,6 +2,7 @@ import * as Web3 from "web3";
 import Onboard from "bnc-onboard";
 import BigNumber from "bignumber.js";
 import * as bancor from "bancor-sdk";
+import { getAddressBalances } from "eth-balance-checker/lib/web3";
 import BANCOR_CONVERTER_REGISTRY_ABI from "../contracts/BancorConverterRegistry.json";
 import BANCOR_CONVERTER_ABI from "../contracts/BancorConverter.json";
 import BANCOR_FORMULA_ABI from "../contracts/BancorFormula.json";
@@ -224,4 +225,11 @@ export const getTokenRate = async (pSourceTokenAddr, pTargetTokenAddr) => {
   } else {
     return 0;
   }
+};
+
+export const getBalances = async pTokens => {
+  const currentState = onboard.getState();
+  const walletAddress = currentState.address;
+  const balances = await getAddressBalances(web3, walletAddress, pTokens);
+  console.log(balances);
 };
