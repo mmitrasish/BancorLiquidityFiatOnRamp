@@ -1,0 +1,203 @@
+@keyframes withdrawAnimation {
+  from {
+    background-color: var(--white);
+    color: var(--wildWatermelon);
+  }
+  to {
+    background-color: var(--wildWatermelon);
+    color: var(--white);
+  }
+}
+
+@keyframes addAnimation {
+  from {
+    background-color: var(--white);
+    color: var(--themeColor);
+  }
+  to {
+    background-color: var(--themeColor);
+    color: var(--white);
+  }
+}
+
+.pools {
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+
+  .pools-container {
+    width: 80%;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.160784);
+    padding: 1.25rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+
+    .pools-table {
+      width: 100%;
+
+      .thead {
+        .tr {
+          padding: 10px 12px;
+          display: flex;
+          align-items: center;
+          border-top: 1px solid var(--bodyBg);
+
+          .td {
+            font-weight: 500;
+            text-transform: uppercase;
+            color: var(--textColor);
+            font-size: 16px;
+
+            &:nth-child(1) {
+              width: 5%;
+            }
+            &:nth-child(2) {
+              width: 19%;
+            }
+            &:nth-child(3) {
+              width: 19%;
+            }
+            &:nth-child(4) {
+              width: 11%;
+            }
+            &:nth-child(5) {
+              width: 7%;
+            }
+            &:nth-child(6) {
+              width: 14%;
+            }
+            &:nth-child(7) {
+              width: 7%;
+            }
+            &:nth-child(8) {
+              width: 18%;
+            }
+          }
+        }
+      }
+
+      .tbody {
+        .tr {
+          padding: 12px;
+          display: flex;
+          align-items: center;
+          border-top: 1px solid var(--bodyBg);
+
+          &:hover {
+            background: #c7c7c76b;
+          }
+
+          .td {
+            color: var(--textColor);
+            font-size: 15px;
+
+            .connector-tokens-container {
+              align-items: center;
+              display: flex;
+              margin-right: 15px;
+              width: 50%;
+
+              .connector-token-logo {
+                height: 32px;
+                width: 32px;
+                margin-right: 15px;
+                border-radius: 50%;
+              }
+            }
+
+            &:nth-child(1) {
+              width: 5%;
+            }
+            &:nth-child(2) {
+              width: 19%;
+              display: flex;
+              align-items: center;
+            }
+            &:nth-child(3) {
+              width: 19%;
+            }
+            &:nth-child(4) {
+              width: 11%;
+            }
+            &:nth-child(5) {
+              width: 7%;
+            }
+            &:nth-child(6) {
+              width: 14%;
+            }
+            &:nth-child(7) {
+              width: 7%;
+            }
+            &:nth-child(8) {
+              width: 18%;
+
+              .action-button {
+                border-radius: 4px;
+                padding: 4px 12px;
+                margin-right: 12px;
+                cursor: pointer;
+
+                .action-icon {
+                  font-weight: bold;
+                  margin-right: 6px;
+                }
+              }
+
+              .withdraw-button {
+                border: 1px solid var(--wildWatermelon);
+                color: var(--wildWatermelon);
+
+                &:hover {
+                  background-color: var(--wildWatermelon);
+                  color: var(--white);
+                  animation: withdrawAnimation 0.5s;
+                }
+              }
+
+              .add-button {
+                border: 1px solid var(--themeColor);
+                color: var(--themeColor);
+
+                &:hover {
+                  background-color: var(--themeColor);
+                  color: var(--white);
+                  animation: addAnimation 0.5s;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .pools-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      align-items: center;
+
+      .header-title {
+        text-transform: uppercase;
+        font-weight: 500;
+        font-size: 15px;
+        color: var(--labelColor);
+      }
+
+      .header-search-token {
+        height: 30px;
+        width: 180px;
+        border: 0px;
+        background: #d6d6d65e;
+        border-radius: 6px;
+        outline: none;
+        padding: 4px 20px;
+        font-size: 15px;
+        color: var(--labelColor);
+
+        &:focus {
+          background: #d6d6d6ad;
+        }
+      }
+    }
+  }
+}

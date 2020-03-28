@@ -7,7 +7,7 @@ import makeBlockie from "ethereum-blockies-base64";
 function Header(props) {
   const handleConnect = async () => {
     const address = await getAccount();
-    props.setAddress(address[0]);
+    props.setAddress(address);
   };
   const getAddressTemplate = address => {
     if (address) {
