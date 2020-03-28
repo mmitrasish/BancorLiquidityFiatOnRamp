@@ -8,7 +8,7 @@
   transform: translate(-50%, -50%);
 }
 
-.widget {
+.pool-liquidity-widget {
   width: 460px;
   height: 564px;
   padding: 10px 20px;
@@ -23,7 +23,19 @@
   .widget-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+
+    .back-button-container {
+      padding: 4px;
+      border-radius: 8px;
+      display: flex;
+      margin-right: 12px;
+      cursor: pointer;
+
+      .back-button {
+        height: 20px;
+        width: 20px;
+      }
+    }
 
     .widget-header-title {
       color: var(--textColor);

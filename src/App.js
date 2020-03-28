@@ -117,7 +117,10 @@ const App = props => {
         />
       ) : null}
       {page === "liquidity" ? (
-        <PoolLiquidityWidget config={liquidityPageConfig} />
+        <PoolLiquidityWidget
+          config={liquidityPageConfig}
+          changePage={changePage}
+        />
       ) : null}
       {/* <Widget /> */}
     </div>

@@ -133,12 +133,6 @@ export const calculateFundCost = async (
     BANCOR_FORMULA_ABI,
     BANCOR_FORMULA_ADDRESS
   );
-  console.log(
-    smartTokenSupply,
-    reserveBalance,
-    "1000000",
-    "1000000000000000000"
-  );
   const reserveRate = await bancorFormulaContract.methods
     .calculateFundCost(
       smartTokenSupply,
@@ -153,7 +147,6 @@ export const calculateFundCost = async (
   const reserveRateParsed = new BigNumber(reserveRate).dividedBy(
     new BigNumber(Math.pow(10, Number.parseInt(reserveTokenDecimals)))
   );
-  console.log(reserveRate, reserveRateParsed.toString(), reserveTokenDecimals);
   return 1 / Number.parseFloat(reserveRateParsed.toString());
 };
 

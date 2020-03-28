@@ -1,5 +1,5 @@
 import React from "react";
-import "./widget.scss";
+import "./pool_liquidity_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { getTokenRate, calculateFundCost } from "../../services/Web3Service";
@@ -41,14 +41,14 @@ function PoolLiquidityWidget(props) {
         props.config.token.connectorTokens[0].address,
         props.config.token.ownerAddress
       );
-      console.log(rate1, props.config.token.connectorTokens[0]);
+      console.log(rate1);
       setSmartTokenRate1(Number.parseFloat(rate1));
       const rate2 = await calculateFundCost(
         props.config.token.smartTokenAddress,
         props.config.token.connectorTokens[1].address,
         props.config.token.ownerAddress
       );
-      console.log(rate2, props.config.token.connectorTokens[1]);
+      console.log(rate2);
       setSmartTokenRate2(Number.parseFloat(rate2));
     }
   };
@@ -79,8 +79,18 @@ function PoolLiquidityWidget(props) {
     }
   };
   return (
-    <div className="widget">
+    <div className="pool-liquidity-widget">
       <div className="widget-header">
+        <div
+          className="back-button-container"
+          onClick={e => props.changePage("home")}
+        >
+          <img
+            src={require("../../assets/icons/back.svg")}
+            alt="back"
+            className="back-button"
+          />
+        </div>
         <h3 className="widget-header-title">
           Pool Liquidity @ {props.config.token.symbol}
         </h3>
