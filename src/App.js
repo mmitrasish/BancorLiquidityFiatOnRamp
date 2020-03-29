@@ -21,6 +21,7 @@ class App extends React.Component {
     this.state = {
       address: undefined,
       allPoolTokens: [],
+      filteredPoolTokens: [],
       page: "home",
       liquidityPageConfig: undefined
     };
@@ -83,7 +84,7 @@ class App extends React.Component {
   };
 
   getAllPoolItems = async pValue => {
-    this.setState({ allPoolTokens: [] });
+    this.setState({ allPoolTokens: [], filteredPoolTokens: [] });
     const allTokens = await getAllBancorLiquidityPoolTokens();
     let allTokenDetails = await Promise.all(
       allTokens.map(async (token, index) => {
@@ -121,8 +122,39 @@ class App extends React.Component {
       token => Number.parseInt(token.connectorTokenCount) === 2
     );
     // console.log(allTokenDetails.length);
-    this.setState({ allPoolTokens: allTokenDetails });
+    this.setState({
+      allPoolTokens: allTokenDetails,
+      filteredPoolTokens: allTokenDetails
+    });
   };
+
+  filterPoolTokens = searchTokenSymbol => {
+    const { allPoolTokens } = this.state;
+    const filteredPoolTokens = allPoolTokens.filter(token => {
+      if (
+        token.symbol.toLowerCase().indexOf(searchTokenSymbol.toLowerCase()) !==
+        -1
+      )
+        return true;
+      if (
+        token.connectorTokens[0].info.symbol
+          .toLowerCase()
+          .indexOf(searchTokenSymbol.toLowerCase()) !== -1
+      )
+        return true;
+
+      if (
+        token.connectorTokens[1].info.symbol
+          .toLowerCase()
+          .indexOf(searchTokenSymbol.toLowerCase()) !== -1
+      )
+        return true;
+      return false;
+    });
+    console.log(filteredPoolTokens);
+    this.setState({ filteredPoolTokens });
+  };
+
   render() {
     this.checkEthereumChange();
     return (
@@ -130,9 +162,10 @@ class App extends React.Component {
         <Header setAddress={this.changeAddress} address={this.state.address} />
         {this.state.page === "home" ? (
           <Pools
-            allPoolTokens={this.state.allPoolTokens}
+            allPoolTokens={this.state.filteredPoolTokens}
             changePage={this.changePage}
             setLiquidityPageConfig={this.addLiquidityPageConfig}
+            filterPoolTokens={this.filterPoolTokens}
           />
         ) : null}
         {this.state.page === "liquidity" ? (
