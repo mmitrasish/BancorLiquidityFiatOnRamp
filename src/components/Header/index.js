@@ -27,7 +27,13 @@ function Header(props) {
   };
   return (
     <div className="header">
-      <div>Bancor Logo</div>
+      <div>
+        <img
+          src="https://gblobscdn.gitbook.com/orgs%2F-LgbH7epoDzyZZsd5KbE%2Favatar.png?generation=1578566725631142&alt=media"
+          alt="logo"
+          className="app-logo"
+        />
+      </div>
       <div
         className={"wallet-container " + (props.address ? "connected" : null)}
         onClick={handleConnect}

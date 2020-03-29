@@ -15,10 +15,11 @@ import {
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
 import PoolLiquidityWidget from "./components/PoolLiquidityWidget";
+import { appConfig } from "./config";
 
 const onboard = Onboard({
-  dappId: "052b3fe9-87d5-4614-b2e9-6dd81115979a", // [String] The API key created by step one above
-  networkId: 1, // [Integer] The Ethereum network ID your Dapp uses.
+  dappId: appConfig.onboardId, // [String] The API key created by step one above
+  networkId: appConfig.networkId, // [Integer] The Ethereum network ID your Dapp uses.
   subscriptions: {
     address: address => {
       walletAddress = address;

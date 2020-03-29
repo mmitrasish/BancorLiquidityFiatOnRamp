@@ -221,11 +221,7 @@ function PoolLiquidityWidget(props) {
             </div>
           ) : null}
           <div className="buy-container">
-            <button
-              type="button"
-              className="buy-button"
-              onClick={e => getTokenRate()}
-            >
+            <button type="button" className="buy-button">
               {tab} Liquidity
             </button>
           </div>

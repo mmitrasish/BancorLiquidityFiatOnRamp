@@ -9,14 +9,15 @@ import BANCOR_FORMULA_ABI from "../contracts/BancorFormula.json";
 import CONTRACT_REGISTRY_ABI from "../contracts/ContractRegistry.json";
 import SMART_TOKEN_ABI from "../contracts/SmartToken.json";
 import ERC20_TOKEN_ABI from "../contracts/ERC20Token.json";
+import { appConfig } from "../config";
 
-const CONTRACT_REGISTRY_ADDRESS = "0x52Ae12ABe5D8BD778BD5397F99cA900624CfADD4";
+const CONTRACT_REGISTRY_ADDRESS = appConfig.contractRegistryAddress;
 
 let web3;
 
 const onboard = Onboard({
-  dappId: "052b3fe9-87d5-4614-b2e9-6dd81115979a", // [String] The API key created by step one above
-  networkId: 1, // [Integer] The Ethereum network ID your Dapp uses.
+  dappId: appConfig.onboardId, // [String] The API key created by step one above
+  networkId: appConfig.networkId, // [Integer] The Ethereum network ID your Dapp uses.
   subscriptions: {
     wallet: wallet => {
       web3 = new Web3(wallet.provider);
@@ -77,80 +78,6 @@ export const getConnectorTokenCount = async tokenAddress => {
   }
 };
 
-export const getConversionFees = async tokenAddress => {
-  if (tokenAddress) {
-    // console.log("Entered");
-    const contract = new web3.eth.Contract(BANCOR_CONVERTER_ABI, tokenAddress);
-    const conversionEvents = await contract.getPastEvents("Conversion", {
-      fromBlock: 0,
-      toBlock: "latest" // You can also specify 'latest'
-    });
-    if (conversionEvents[conversionEvents.length - 1]) {
-      const conversionFee = new BigNumber(
-        conversionEvents[
-          conversionEvents.length - 1
-        ].returnValues._conversionFee
-      );
-      const amount = new BigNumber(
-        conversionEvents[conversionEvents.length - 1].returnValues._amount
-      );
-      const conversionFeePercent = conversionFee.dividedBy(amount);
-      // console.log(
-      //   conversionFeePercent.toString(),
-      //   conversionFee.toFixed(2),
-      //   amount.toFixed(2)
-      // );
-      return conversionFeePercent.toFixed(2);
-    } else {
-      return 0;
-    }
-
-    // return connectorTokenCount;
-  }
-};
-
-export const calculateFundCost = async (
-  pSmartTokenAddress,
-  pReserveToken,
-  pSmartTokenOwnerAddress
-) => {
-  const BANCOR_FORMULA_ADDRESS = await getContractAddress("BancorFormula");
-  const smartTokenContract = new web3.eth.Contract(
-    SMART_TOKEN_ABI,
-    pSmartTokenAddress
-  );
-  const smartTokenSupply = await smartTokenContract.methods
-    .totalSupply()
-    .call();
-  const erc20TokenContract = new web3.eth.Contract(
-    ERC20_TOKEN_ABI,
-    pReserveToken
-  );
-  const reserveBalance = await erc20TokenContract.methods
-    .balanceOf(pSmartTokenOwnerAddress)
-    .call();
-
-  const bancorFormulaContract = new web3.eth.Contract(
-    BANCOR_FORMULA_ABI,
-    BANCOR_FORMULA_ADDRESS
-  );
-  const reserveRate = await bancorFormulaContract.methods
-    .calculateFundCost(
-      smartTokenSupply,
-      reserveBalance,
-      "1000000",
-      "1000000000000000000"
-    )
-    .call();
-  const reserveTokenDecimals = await erc20TokenContract.methods
-    .decimals()
-    .call();
-  const reserveRateParsed = new BigNumber(reserveRate).dividedBy(
-    new BigNumber(Math.pow(10, Number.parseInt(reserveTokenDecimals)))
-  );
-  return 1 / Number.parseFloat(reserveRateParsed.toString());
-};
-
 export const getConnectorTokens = async (tokenAddress, index) => {
   if (tokenAddress) {
     const contract = new web3.eth.Contract(BANCOR_CONVERTER_ABI, tokenAddress);
@@ -207,8 +134,7 @@ async function rpc(func) {
 
 export const getTokenRate = async (pSourceTokenAddr, pTargetTokenAddr) => {
   await bancor.init({
-    ethereumNodeEndpoint:
-      "https://mainnet.infura.io/v3/55b4d27b09d64c4c8a6d9e381a51455d",
+    ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint,
     ethereumContractRegistryAddress: CONTRACT_REGISTRY_ADDRESS
   });
   if (pSourceTokenAddr && pTargetTokenAddr) {
@@ -225,6 +151,111 @@ export const getTokenRate = async (pSourceTokenAddr, pTargetTokenAddr) => {
   } else {
     return 0;
   }
+};
+
+export const getConversionFees = async tokenAddress => {
+  if (tokenAddress) {
+    // console.log("Entered");
+    const contract = new web3.eth.Contract(BANCOR_CONVERTER_ABI, tokenAddress);
+    const conversionEvents = await contract.getPastEvents("Conversion", {
+      fromBlock: 0,
+      toBlock: "latest" // You can also specify 'latest'
+    });
+    if (conversionEvents[conversionEvents.length - 1]) {
+      const conversionFee = new BigNumber(
+        conversionEvents[
+          conversionEvents.length - 1
+        ].returnValues._conversionFee
+      );
+      const amount = new BigNumber(
+        conversionEvents[conversionEvents.length - 1].returnValues._amount
+      );
+      const conversionFeePercent = conversionFee.dividedBy(amount);
+      // console.log(
+      //   conversionFeePercent.toString(),
+      //   conversionFee.toFixed(2),
+      //   amount.toFixed(2)
+      // );
+      return conversionFeePercent.toFixed(2);
+    } else {
+      return 0;
+    }
+
+    // return connectorTokenCount;
+  }
+};
+
+export const getReserveBalance = async (
+  pReserveTokenAddr,
+  pSmartTokenOwnerAddress
+) => {
+  const erc20TokenContract = new web3.eth.Contract(
+    ERC20_TOKEN_ABI,
+    pReserveTokenAddr
+  );
+  const reserveBalance = await erc20TokenContract.methods
+    .balanceOf(pSmartTokenOwnerAddress)
+    .call();
+  return reserveBalance;
+};
+
+export const getLiquidityDepth = async (
+  pReserveTokens,
+  pSmartTokenOwnerAddress
+) => {
+  const liquidityDepth = await Promise.all(
+    pReserveTokens.map(async token => {
+      const reserveBalance = await getReserveBalance(
+        token,
+        pSmartTokenOwnerAddress
+      );
+      return reserveBalance;
+    })
+  );
+  console.log(liquidityDepth);
+};
+
+export const calculateFundCost = async (
+  pSmartTokenAddress,
+  pReserveToken,
+  pSmartTokenOwnerAddress
+) => {
+  const BANCOR_FORMULA_ADDRESS = await getContractAddress("BancorFormula");
+  const smartTokenContract = new web3.eth.Contract(
+    SMART_TOKEN_ABI,
+    pSmartTokenAddress
+  );
+  const smartTokenSupply = await smartTokenContract.methods
+    .totalSupply()
+    .call();
+  const reserveBalance = await getReserveBalance(
+    pReserveToken,
+    pSmartTokenOwnerAddress
+  );
+
+  const bancorFormulaContract = new web3.eth.Contract(
+    BANCOR_FORMULA_ABI,
+    BANCOR_FORMULA_ADDRESS
+  );
+  const reserveRate = await bancorFormulaContract.methods
+    .calculateFundCost(
+      smartTokenSupply,
+      reserveBalance,
+      "1000000",
+      "1000000000000000000"
+    )
+    .call();
+  const erc20TokenContract = new web3.eth.Contract(
+    ERC20_TOKEN_ABI,
+    pReserveToken
+  );
+  const reserveTokenDecimals = await erc20TokenContract.methods
+    .decimals()
+    .call();
+  const reserveRateParsed = new BigNumber(reserveRate).dividedBy(
+    new BigNumber(Math.pow(10, Number.parseInt(reserveTokenDecimals)))
+  );
+  return 1 / Number.parseFloat(reserveRateParsed.toString());
 };
 
 export const getBalances = async pTokens => {

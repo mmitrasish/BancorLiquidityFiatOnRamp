@@ -4,6 +4,12 @@
   justify-content: space-between;
   align-items: center;
 
+  .app-logo {
+    height: 48px;
+    width: 48px;
+    border-radius: 6px;
+  }
+
   .wallet-container {
     padding: 4px 25px;
     border: 1px solid var(--themeColor);
@@ -26,6 +32,7 @@
       }
     }
   }
+
   .connected {
     color: var(--labelColor);
     border: 1px solid var(--bodyBg);

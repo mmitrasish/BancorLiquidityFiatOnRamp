@@ -14,6 +14,7 @@ $shadow: #dbe3f4;
 
 .loader {
   @include poCentering();
+
   .boxes {
     --size: 32px;
     --duration: 800ms;

@@ -150,13 +150,13 @@
     }
     .summary-item {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       font-size: 14px;
       margin-top: 4px;
 
       .full-summary {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         flex-grow: 1;
 
         .full-summary-tilda {
@@ -179,7 +179,6 @@
       width: 56%;
       background: var(--themeColor);
       color: var(--white);
-      border-radius: 18px;
       padding: 1rem 2rem;
       border-radius: 3rem;
       border-width: initial;
@@ -190,6 +189,19 @@
       font-size: 1rem;
       cursor: pointer;
       user-select: none;
+      box-shadow: 0 2px 4px #a9a9a985;
+      transition: all 0.2s ease-in;
+
+      &:hover {
+        transform: scale(1.01);
+        box-shadow: 0 6px 4px #a9a9a985;
+      }
+
+      &:active {
+        background: darken(#3271ee, 15%);
+        box-shadow: 0 5px 4px darken(#a9a9a985, 5%);
+        transform: translateY(1px);
+      }
     }
   }
 }
