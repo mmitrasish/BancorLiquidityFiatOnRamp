@@ -29,6 +29,10 @@ function Pools(props) {
       if (loading) {
         setLoading(false);
       }
+    } else {
+      if (!loading) {
+        setLoading(true);
+      }
     }
   }, [props.allPoolTokens]);
 

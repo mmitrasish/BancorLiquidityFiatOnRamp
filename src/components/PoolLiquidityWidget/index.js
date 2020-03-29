@@ -33,7 +33,6 @@ function PoolLiquidityWidget(props) {
   }, [props.config.token]);
 
   const getRate = async () => {
-    console.log(props.config);
     if (props.config.token.connectorTokens) {
       const rate = await getTokenRate(
         props.config.token.connectorTokens[0].address,

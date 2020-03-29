@@ -1,7 +1,5 @@
 import React from "react";
 import "./App.scss";
-import Onboard from "bnc-onboard";
-import Widget from "./components/Widget";
 import Header from "./components/Header";
 import {
   getAllBancorLiquidityPoolTokens,
@@ -15,58 +13,77 @@ import {
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
 import PoolLiquidityWidget from "./components/PoolLiquidityWidget";
-import { appConfig } from "./config";
+import { appConfig, setAppConfig } from "./config";
 
-const onboard = Onboard({
-  dappId: appConfig.onboardId, // [String] The API key created by step one above
-  networkId: appConfig.networkId, // [Integer] The Ethereum network ID your Dapp uses.
-  subscriptions: {
-    address: address => {
-      walletAddress = address;
-    }
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      address: undefined,
+      allPoolTokens: [],
+      page: "home",
+      liquidityPageConfig: undefined
+    };
   }
-});
 
-let walletAddress;
-
-const App = props => {
-  const [address, setAddress] = React.useState();
-  const [allPoolTokens, setAllPoolTokens] = React.useState([]);
-  const [page, setPage] = React.useState("home");
-  const [liquidityPageConfig, setLiquidityPageConfig] = React.useState();
-
-  const changeAddress = address => {
-    setAddress(address);
+  changeAddress = address => {
+    this.setState({ address });
   };
 
-  const changePage = page => {
-    setPage(page);
+  changePage = page => {
+    this.setState({ page });
   };
 
-  const addLiquidityPageConfig = config => {
-    setLiquidityPageConfig(config);
+  addLiquidityPageConfig = config => {
+    this.setState({ liquidityPageConfig: config });
   };
-  // checkAddressChange = () => {
-  //   if (window.ethereum) {
-  //     window.ethereum.on("accountsChanged", accounts => {
-  //       if (this.state.address !== undefined) {
-  //         this.setAddress(accounts[0]);
-  //       }
-  //     });
-  //   }
-  // };
-  React.useEffect(() => {
-    getAllPoolItems();
-  }, []);
 
-  React.useEffect(() => {
-    console.log("Entered");
-    setAddress(walletAddress);
-  }, [walletAddress]);
+  checkEthereumChange = () => {
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", accounts => {
+        if (this.state.address !== undefined) {
+          this.setState({ address: accounts[0] });
+        }
+      });
 
-  const getAllPoolItems = async () => {
+      window.ethereum.on("networkChanged", async changedChainId => {
+        if (
+          this.state.address &&
+          Number.parseInt(changedChainId) !==
+            Number.parseInt(appConfig.networkId)
+        ) {
+          // console.log(
+          //   "Entered",
+          //   changedChainId,
+          //   appConfig.networkId,
+          //   this.state.address
+          // );
+          setAppConfig(changedChainId);
+          this.getAllPoolItems();
+          this.setState({ page: "home" });
+        }
+      });
+    }
+  };
+
+  componentDidMount() {
+    this.startProcess();
+  }
+
+  startProcess = async () => {
+    if (window.ethereum.networkVersion) {
+      setAppConfig(window.ethereum.networkVersion);
+    } else {
+      setAppConfig(1);
+    }
     const address = await getAccount();
-    changeAddress(address);
+    console.log(address);
+    this.changeAddress(address);
+    this.getAllPoolItems();
+  };
+
+  getAllPoolItems = async pValue => {
+    this.setState({ allPoolTokens: [] });
     const allTokens = await getAllBancorLiquidityPoolTokens();
     let allTokenDetails = await Promise.all(
       allTokens.map(async (token, index) => {
@@ -104,28 +121,30 @@ const App = props => {
       token => Number.parseInt(token.connectorTokenCount) === 2
     );
     // console.log(allTokenDetails.length);
-    setAllPoolTokens(allTokenDetails);
+    this.setState({ allPoolTokens: allTokenDetails });
   };
-
-  return (
-    <div className="App">
-      <Header setAddress={changeAddress} address={address} />
-      {page === "home" ? (
-        <Pools
-          allPoolTokens={allPoolTokens}
-          changePage={changePage}
-          setLiquidityPageConfig={addLiquidityPageConfig}
-        />
-      ) : null}
-      {page === "liquidity" ? (
-        <PoolLiquidityWidget
-          config={liquidityPageConfig}
-          changePage={changePage}
-        />
-      ) : null}
-      {/* <Widget /> */}
-    </div>
-  );
-};
+  render() {
+    this.checkEthereumChange();
+    return (
+      <div className="App">
+        <Header setAddress={this.changeAddress} address={this.state.address} />
+        {this.state.page === "home" ? (
+          <Pools
+            allPoolTokens={this.state.allPoolTokens}
+            changePage={this.changePage}
+            setLiquidityPageConfig={this.addLiquidityPageConfig}
+          />
+        ) : null}
+        {this.state.page === "liquidity" ? (
+          <PoolLiquidityWidget
+            config={this.state.liquidityPageConfig}
+            changePage={this.changePage}
+          />
+        ) : null}
+        {/* <Widget /> */}
+      </div>
+    );
+  }
+}
 
 export default App;

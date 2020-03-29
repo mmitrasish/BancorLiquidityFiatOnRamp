@@ -1,7 +1,6 @@
 import * as Web3 from "web3";
 import Onboard from "bnc-onboard";
 import BigNumber from "bignumber.js";
-import * as bancor from "bancor-sdk";
 import { getAddressBalances } from "eth-balance-checker/lib/web3";
 import BANCOR_CONVERTER_REGISTRY_ABI from "../contracts/BancorConverterRegistry.json";
 import BANCOR_CONVERTER_ABI from "../contracts/BancorConverter.json";
@@ -11,7 +10,9 @@ import SMART_TOKEN_ABI from "../contracts/SmartToken.json";
 import ERC20_TOKEN_ABI from "../contracts/ERC20Token.json";
 import { appConfig } from "../config";
 
-const CONTRACT_REGISTRY_ADDRESS = appConfig.contractRegistryAddress;
+const SDK = require("bancor-sdk").SDK;
+
+let CONTRACT_REGISTRY_ADDRESS = appConfig.contractRegistryAddress;
 
 let web3;
 
@@ -24,6 +25,11 @@ const onboard = Onboard({
     }
   }
 });
+
+export const changeNetwork = config => {
+  onboard.config({ networkId: config.networkId });
+  CONTRACT_REGISTRY_ADDRESS = config.contractRegistryAddress;
+};
 
 export const getAccount = async () => {
   await onboard.walletSelect();
@@ -133,23 +139,29 @@ async function rpc(func) {
 }
 
 export const getTokenRate = async (pSourceTokenAddr, pTargetTokenAddr) => {
-  await bancor.init({
-    ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint,
-    ethereumContractRegistryAddress: CONTRACT_REGISTRY_ADDRESS
-  });
-  if (pSourceTokenAddr && pTargetTokenAddr) {
-    const sourceToken = {
-      blockchainType: "ethereum",
-      blockchainId: pSourceTokenAddr
-    };
-    const targetToken = {
-      blockchainType: "ethereum",
-      blockchainId: pTargetTokenAddr
-    };
-    const rate = await bancor.getRate(sourceToken, targetToken, "1.0");
-    return rate;
-  } else {
-    return 0;
+  try {
+    const sdk = await SDK.create({
+      ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint
+    });
+
+    if (pSourceTokenAddr && pTargetTokenAddr) {
+      const sourceToken = {
+        blockchainType: "ethereum",
+        blockchainId: pSourceTokenAddr
+      };
+      const targetToken = {
+        blockchainType: "ethereum",
+        blockchainId: pTargetTokenAddr
+      };
+      const rate = await sdk.getCheapestPathRate(sourceToken, targetToken, "1");
+      await SDK.destroy(sdk);
+
+      return rate;
+    } else {
+      return 0;
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -262,5 +274,5 @@ export const getBalances = async pTokens => {
   const currentState = onboard.getState();
   const walletAddress = currentState.address;
   const balances = await getAddressBalances(web3, walletAddress, pTokens);
-  console.log(balances);
+  // console.log(balances);
 };
