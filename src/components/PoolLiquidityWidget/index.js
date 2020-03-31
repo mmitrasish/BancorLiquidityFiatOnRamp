@@ -5,7 +5,9 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import {
   getTokenRate,
   calculateFundCost,
-  getBalances
+  getBalances,
+  addLiquidity,
+  withdrawLiquidity
 } from "../../services/Web3Service";
 import Loader from "../Loader";
 
@@ -91,6 +93,34 @@ function PoolLiquidityWidget(props) {
       return (
         Number.parseFloat(smartTokenRate1) * token1Amount +
         Number.parseFloat(smartTokenRate2) * token2Amount
+      );
+    }
+  };
+
+  const liquidityAction = pTab => {
+    const pTokenDetails = [
+      {
+        address: props.config.token.connectorTokens[0].address,
+        amount: token1Amount
+      },
+      {
+        address: props.config.token.connectorTokens[1].address,
+        amount: token2Amount
+      }
+    ];
+    if (pTab.toLowerCase() === "add") {
+      addLiquidity(
+        getTotalSmartTokenAmount(),
+        props.config.token.ownerAddress,
+        pTokenDetails,
+        props.userAddress
+      );
+    } else if (pTab.toLowerCase() === "withdraw") {
+      withdrawLiquidity(
+        getTotalSmartTokenAmount(),
+        props.config.token.ownerAddress,
+        pTokenDetails,
+        props.userAddress
       );
     }
   };
@@ -220,7 +250,11 @@ function PoolLiquidityWidget(props) {
             </div>
           ) : null}
           <div className="buy-container">
-            <button type="button" className="buy-button">
+            <button
+              type="button"
+              className="buy-button"
+              onClick={e => liquidityAction(tab)}
+            >
               {tab} Liquidity
             </button>
           </div>

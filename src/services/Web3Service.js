@@ -276,3 +276,67 @@ export const getBalances = async pTokens => {
   const balances = await getAddressBalances(web3, walletAddress, pTokens);
   // console.log(balances);
 };
+
+export const addLiquidity = async (
+  pAmount,
+  pOwnerAddress,
+  pResTokensDetail,
+  userAddress
+) => {
+  console.log(pResTokensDetail);
+  const approvals = await Promise.all(
+    pResTokensDetail.map(resToken => {
+      const erc20TokenContract = new web3.eth.Contract(
+        ERC20_TOKEN_ABI,
+        resToken.address
+      );
+      const tokenAmount = web3.utils.toWei(resToken.amount + "");
+      return erc20TokenContract.methods
+        .approve(pOwnerAddress, tokenAmount)
+        .send({ from: userAddress });
+    })
+  );
+  console.log(approvals);
+
+  const bancorConverterContract = new web3.eth.Contract(
+    BANCOR_CONVERTER_ABI,
+    pOwnerAddress
+  );
+  const fundAmount = web3.utils.toWei(pAmount + "");
+  const fund = await bancorConverterContract.methods
+    .fund(fundAmount)
+    .send({ from: userAddress });
+  console.log(fund);
+};
+
+export const withdrawLiquidity = async (
+  pAmount,
+  pOwnerAddress,
+  pResTokensDetail,
+  userAddress
+) => {
+  console.log(pResTokensDetail);
+  const approvals = await Promise.all(
+    pResTokensDetail.map(resToken => {
+      const erc20TokenContract = new web3.eth.Contract(
+        ERC20_TOKEN_ABI,
+        resToken.address
+      );
+      const tokenAmount = web3.utils.toWei(resToken.amount + "");
+      return erc20TokenContract.methods
+        .approve(pOwnerAddress, tokenAmount)
+        .send({ from: userAddress });
+    })
+  );
+  console.log(approvals);
+
+  const bancorConverterContract = new web3.eth.Contract(
+    BANCOR_CONVERTER_ABI,
+    pOwnerAddress
+  );
+  const fundAmount = web3.utils.toWei(pAmount + "");
+  const fund = await bancorConverterContract.methods
+    .liquidate(fundAmount)
+    .send({ from: userAddress });
+  console.log(fund);
+};

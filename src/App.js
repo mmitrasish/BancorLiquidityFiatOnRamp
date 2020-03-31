@@ -172,6 +172,7 @@ class App extends React.Component {
           <PoolLiquidityWidget
             config={this.state.liquidityPageConfig}
             changePage={this.changePage}
+            userAddress={this.state.address}
           />
         ) : null}
         {/* <Widget /> */}
