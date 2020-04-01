@@ -12,6 +12,7 @@ import {
   getConversionFees
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
+import SwapWidget from "./components/SwapWidget";
 import PoolLiquidityWidget from "./components/PoolLiquidityWidget";
 import { appConfig, setAppConfig } from "./config";
 
@@ -159,7 +160,12 @@ class App extends React.Component {
     this.checkEthereumChange();
     return (
       <div className="App">
-        <Header setAddress={this.changeAddress} address={this.state.address} />
+        <Header
+          setAddress={this.changeAddress}
+          address={this.state.address}
+          page={this.state.page}
+          changePage={this.changePage}
+        />
         {this.state.page === "home" ? (
           <Pools
             allPoolTokens={this.state.filteredPoolTokens}
@@ -172,6 +178,12 @@ class App extends React.Component {
           <PoolLiquidityWidget
             config={this.state.liquidityPageConfig}
             changePage={this.changePage}
+            userAddress={this.state.address}
+            allPoolTokens={this.state.allPoolTokens}
+          />
+        ) : null}
+        {this.state.page === "swap" ? (
+          <SwapWidget
             userAddress={this.state.address}
             allPoolTokens={this.state.allPoolTokens}
           />

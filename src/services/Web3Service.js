@@ -5,8 +5,8 @@ import { getAddressBalances } from "eth-balance-checker/lib/web3";
 import BANCOR_CONVERTER_REGISTRY_ABI from "../contracts/BancorConverterRegistry.json";
 import BANCOR_CONVERTER_ABI from "../contracts/BancorConverter.json";
 import BANCOR_FORMULA_ABI from "../contracts/BancorFormula.json";
-import BANCOR_NETWORK_ABI from "../contract/BancorNetwork.json";
-import BANCOR_NETWORK_PATH_FINDER_ABI from "../contract/BancorNetworkPathFinder.json";
+import BANCOR_NETWORK_ABI from "../contracts/BancorNetwork.json";
+import BANCOR_NETWORK_PATH_FINDER_ABI from "../contracts/BancorNetworkPathFinder.json";
 import CONTRACT_REGISTRY_ABI from "../contracts/ContractRegistry.json";
 import SMART_TOKEN_ABI from "../contracts/SmartToken.json";
 import ERC20_TOKEN_ABI from "../contracts/ERC20Token.json";
@@ -157,7 +157,6 @@ export const getTokenRate = async (pSourceTokenAddr, pTargetTokenAddr) => {
       };
       const rate = await sdk.getCheapestPathRate(sourceToken, targetToken, "1");
       await SDK.destroy(sdk);
-
       return rate;
     } else {
       return 0;
@@ -310,16 +309,12 @@ export const getBalances = async pTokens => {
 };
 
 export const addLiquidity = async (
-  pSmartTokenAddress,
   pAmount,
   pOwnerAddress,
   pResTokensDetail,
   userAddress
 ) => {
-  console.log(pResTokensDetail);
-
-  console.log("Entered", pAmount, web3.utils.toWei(pAmount + ""));
-  const zeroApprovals = await Promise.all(
+  await Promise.all(
     pResTokensDetail.map(resToken => {
       const erc20TokenContract = new web3.eth.Contract(
         ERC20_TOKEN_ABI,
@@ -331,40 +326,18 @@ export const addLiquidity = async (
         .send({ from: userAddress });
     })
   );
-  console.log(zeroApprovals);
-  const approvals = await Promise.all(
+  await Promise.all(
     pResTokensDetail.map(async resToken => {
       const erc20TokenContract = new web3.eth.Contract(
         ERC20_TOKEN_ABI,
         resToken.address
       );
-      const tokenAmount = await calculateFundCost(
-        pSmartTokenAddress,
-        resToken.address,
-        pOwnerAddress,
-        pAmount
-      );
+      const tokenAmount = web3.utils.toWei("1000");
       return erc20TokenContract.methods
         .approve(pOwnerAddress, tokenAmount)
         .send({ from: userAddress });
     })
   );
-  console.log(approvals);
-
-  // const reserveTokenAmount = await Promise.all(
-  //   pResTokensDetail.map(resToken => {
-  //     console.log(pSmartTokenAddress, resToken.address, pOwnerAddress, pAmount);
-  //     return calculateFundCost(
-  //       pSmartTokenAddress,
-  //       resToken.address,
-  //       pOwnerAddress,
-  //       pAmount
-  //     );
-  //   })
-  // );
-
-  // console.log(reserveTokenAmount);
-  // const totalFundAmount = new BigNumber(reserveTokenAmount[0]).plus(new BigNumber(reserveTokenAmount[1]))
 
   const bancorConverterContract = new web3.eth.Contract(
     BANCOR_CONVERTER_ABI,
@@ -374,7 +347,7 @@ export const addLiquidity = async (
   const fund = await bancorConverterContract.methods
     .fund(fundAmount)
     .send({ from: userAddress });
-  console.log(fund);
+  // console.log(fund);
 };
 
 export const withdrawLiquidity = async (
@@ -383,33 +356,41 @@ export const withdrawLiquidity = async (
   pResTokensDetail,
   userAddress
 ) => {
-  console.log(pResTokensDetail);
-
-  console.log("Entered", pAmount);
-  const approvals = await Promise.all(
+  await Promise.all(
     pResTokensDetail.map(resToken => {
       const erc20TokenContract = new web3.eth.Contract(
         ERC20_TOKEN_ABI,
         resToken.address
       );
-      const tokenAmount = web3.utils.toWei(resToken.amount + "");
+      const tokenAmount = web3.utils.toWei("0");
       return erc20TokenContract.methods
         .approve(pOwnerAddress, tokenAmount)
         .send({ from: userAddress });
     })
   );
-  console.log(approvals);
+  await Promise.all(
+    pResTokensDetail.map(async resToken => {
+      const erc20TokenContract = new web3.eth.Contract(
+        ERC20_TOKEN_ABI,
+        resToken.address
+      );
+      const tokenAmount = web3.utils.toWei("1000");
+      return erc20TokenContract.methods
+        .approve(pOwnerAddress, tokenAmount)
+        .send({ from: userAddress });
+    })
+  );
+
   const bancorConverterContract = new web3.eth.Contract(
     BANCOR_CONVERTER_ABI,
     pOwnerAddress
   );
-  const fundAmount = web3.utils.toWei(pAmount + "");
+  const liquidateAmount = web3.utils.toWei(pAmount + "");
 
-  console.log(pAmount);
-  const fund = await bancorConverterContract.methods
-    .liquidate(fundAmount)
+  const liquidate = await bancorConverterContract.methods
+    .liquidate(liquidateAmount)
     .send({ from: userAddress });
-  console.log(fund);
+  // console.log(fund);
 };
 
 export const contractERC20 = async address => {
@@ -417,8 +398,19 @@ export const contractERC20 = async address => {
   return erc20TokenContract;
 };
 
-export const swapTokens = async (_amount, transferAddress, receiveAddress, isEth) => {
-  const amount = web3.utils.toWei(_amount + "");
+export const getAmountInEth = pAmount => {
+  const amount = web3.utils.fromWei(pAmount + "");
+  return amount;
+};
+
+export const swapTokens = async (
+  pAmount,
+  pTransferAddress,
+  pReceiveAddress,
+  pIsEth,
+  pUserAddress
+) => {
+  const amount = web3.utils.toWei(pAmount + "");
   const BANCOR_NETWORK_PATH_FINDER_ADDRESS = await getContractAddress(
     "BancorNetworkPathFinder"
   );
@@ -432,27 +424,26 @@ export const swapTokens = async (_amount, transferAddress, receiveAddress, isEth
     BANCOR_NETWORK_ABI,
     BANCOR_NETWORK_ADDRESS
   );
-  const path = await bancorNetworkPathFinderContract.methods.generatePath(
-    transferAddress,
-    receiveAddress
-  ).call();
+  const path = await bancorNetworkPathFinderContract.methods
+    .generatePath(pTransferAddress, pReceiveAddress)
+    .call();
 
   const from = "0x75e4DD0587663Fce5B2D9aF7fbED3AC54342d3dB";
-
-  if (isEth) {
+  // console.log(path);
+  if (pIsEth) {
     const swapEth = await bancorNetworkContract.methods
       .convert2(path, amount, "1", from, "10000")
-      .send({ from: userAddress });
+      .send({ from: pUserAddress, value: amount });
     return swapEth;
   } else {
-    const transfer = await contractERC20(transferAddress);
+    const transfer = await contractERC20(pTransferAddress);
     await transfer.methods
       .approve(BANCOR_NETWORK_ADDRESS, amount)
-      .send({ from: userAddress });
+      .send({ from: pUserAddress });
 
     const swapT = await bancorNetworkContract.methods
-      .claimAndConvert2(path, amount, 1, from, "10000")
-      .send({ from: userAddress });
-     return swapT; 
+      .claimAndConvert2(path, amount, "1", from, "10000")
+      .send({ from: pUserAddress });
+    return swapT;
   }
 };

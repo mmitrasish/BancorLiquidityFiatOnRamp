@@ -7,7 +7,6 @@ import {
   faChevronRight
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  getTokenRate,
   calculateFundCostRate,
   getBalances,
   addLiquidity,
@@ -58,35 +57,18 @@ function PoolLiquidityWidget(props) {
   }, [props.config.token]);
 
   React.useEffect(() => {
-    console.log("Changed 1st Token");
     // setParentToken()
     getRate();
     getReserveTokenBalances();
   }, [selectedFirstToken]);
 
   React.useEffect(() => {
-    console.log("Changed 2nd Token");
     // setParentToken()
     getRate();
     getReserveTokenBalances();
   }, [selectedSecondToken]);
 
-  // const setParentToken = () => {
-  //   const token = undefined;
-  //   props.allPoolTokens.forEach(token => {
-  //     if()
-  //   })
-  // }
-
   const getRate = async () => {
-    // if (selectedSmartToken.connectorTokens) {
-    //   const rate = await getTokenRate(
-    //     selectedFirstToken.address,
-    //     selectedSecondToken.address
-    //   );
-    //   console.log(rate);
-    //   setRate(rate);
-    // }
     if (selectedSmartToken) {
       const rate1 = await calculateFundCostRate(
         selectedSmartToken.smartTokenAddress,
@@ -94,7 +76,7 @@ function PoolLiquidityWidget(props) {
         selectedSmartToken.ownerAddress,
         1
       );
-      console.log(rate1);
+      // console.log(rate1);
       setSmartTokenRate1(Number.parseFloat(rate1));
       const rate2 = await calculateFundCostRate(
         selectedSmartToken.smartTokenAddress,
@@ -102,7 +84,7 @@ function PoolLiquidityWidget(props) {
         selectedSmartToken.ownerAddress,
         1
       );
-      console.log(rate2);
+      // console.log(rate2);
       setSmartTokenRate2(Number.parseFloat(rate2));
       if (loading) {
         setLoading(false);
@@ -127,13 +109,8 @@ function PoolLiquidityWidget(props) {
       smartTokenVal
     );
     secTokenValue = getAmountInEth(secTokenValue);
-    console.log(secTokenValue);
+    // console.log(secTokenValue);
     setToken2Amount(secTokenValue);
-    // let token2Amount = 0;
-    // if (rate) {
-    //   token2Amount = Number.parseFloat(pValue) * Number.parseFloat(rate);
-    //   setToken2Amount(token2Amount.toFixed(2));
-    // }
   };
 
   const changeToken2Amount = async pValue => {
@@ -146,12 +123,8 @@ function PoolLiquidityWidget(props) {
       smartTokenVal
     );
     firTokenValue = getAmountInEth(firTokenValue);
-    console.log(firTokenValue);
+    // console.log(firTokenValue);
     setToken1Amount(firTokenValue);
-    // if (rate) {
-    //   const token1Amount = Number.parseFloat(pValue) / Number.parseFloat(rate);
-    //   setToken1Amount(token1Amount.toFixed(2));
-    // }
   };
 
   const getTotalSmartTokenAmount = () => {
@@ -169,11 +142,6 @@ function PoolLiquidityWidget(props) {
     );
     const firstTokensUniqueList = [];
     firstTokensList.forEach(token => {
-      console.log(
-        !firstTokensUniqueList
-          .map(token => token.address)
-          .includes(token.address)
-      );
       if (
         !firstTokensUniqueList
           .map(token => token.address)
@@ -192,11 +160,6 @@ function PoolLiquidityWidget(props) {
     );
     const secondTokensUniqueList = [];
     secondTokensList.forEach(token => {
-      console.log(
-        !secondTokensUniqueList
-          .map(token => token.address)
-          .includes(token.address)
-      );
       if (
         !secondTokensUniqueList
           .map(token => token.address)
@@ -252,7 +215,6 @@ function PoolLiquidityWidget(props) {
         token.connectorTokens[1].address === selectedSecondToken.address
       ) {
         flag = true;
-        console.log(token);
         setSelectedSmartToken(token);
       }
     });
@@ -272,7 +234,6 @@ function PoolLiquidityWidget(props) {
         token.connectorTokens[1].address === pToken.address
       ) {
         flag = true;
-        console.log(token);
         setSelectedSmartToken(token);
       }
     });

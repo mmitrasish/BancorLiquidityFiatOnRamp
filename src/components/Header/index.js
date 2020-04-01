@@ -27,13 +27,32 @@ function Header(props) {
   };
   return (
     <div className="header">
-      <div>
+      <div className="header-first-container">
         <img
           src="https://gblobscdn.gitbook.com/orgs%2F-LgbH7epoDzyZZsd5KbE%2Favatar.png?generation=1578566725631142&alt=media"
           alt="logo"
           className="app-logo"
         />
-        <div></div>
+        <div className="header-tab-container">
+          <div
+            className={`header-tab ${
+              props.page === "swap" ? "tab-active" : null
+            }`}
+            onClick={e => props.changePage("swap")}
+          >
+            Swap
+          </div>
+          <div
+            className={`header-tab ${
+              props.page === "home" || props.page === "liquidity"
+                ? "tab-active"
+                : null
+            }`}
+            onClick={e => props.changePage("home")}
+          >
+            Pools
+          </div>
+        </div>
       </div>
       <div
         className={"wallet-container " + (props.address ? "connected" : null)}
