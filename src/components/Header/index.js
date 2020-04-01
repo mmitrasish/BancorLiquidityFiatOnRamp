@@ -33,6 +33,7 @@ function Header(props) {
           alt="logo"
           className="app-logo"
         />
+        <div></div>
       </div>
       <div
         className={"wallet-container " + (props.address ? "connected" : null)}
