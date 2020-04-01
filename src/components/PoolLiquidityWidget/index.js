@@ -11,7 +11,9 @@ import {
   calculateFundCostRate,
   getBalances,
   addLiquidity,
-  withdrawLiquidity
+  withdrawLiquidity,
+  calculateFundCost,
+  getAmountInEth
 } from "../../services/Web3Service";
 import { showError } from "../../utils/index";
 import Loader from "../Loader";
@@ -19,7 +21,7 @@ import Loader from "../Loader";
 function PoolLiquidityWidget(props) {
   const [tab, setTab] = React.useState(props.config.type);
   const [loading, setLoading] = React.useState(true);
-  const [rate, setRate] = React.useState(0);
+  // const [rate, setRate] = React.useState(0);
   const [smartTokenRate1, setSmartTokenRate1] = React.useState(0);
   const [smartTokenRate2, setSmartTokenRate2] = React.useState(0);
   const [token1Amount, setToken1Amount] = React.useState();
@@ -77,14 +79,14 @@ function PoolLiquidityWidget(props) {
   // }
 
   const getRate = async () => {
-    if (selectedSmartToken.connectorTokens) {
-      const rate = await getTokenRate(
-        selectedFirstToken.address,
-        selectedSecondToken.address
-      );
-      console.log(rate);
-      setRate(rate);
-    }
+    // if (selectedSmartToken.connectorTokens) {
+    //   const rate = await getTokenRate(
+    //     selectedFirstToken.address,
+    //     selectedSecondToken.address
+    //   );
+    //   console.log(rate);
+    //   setRate(rate);
+    // }
     if (selectedSmartToken) {
       const rate1 = await calculateFundCostRate(
         selectedSmartToken.smartTokenAddress,
@@ -115,21 +117,41 @@ function PoolLiquidityWidget(props) {
     ]);
   };
 
-  const changeToken1Amount = pValue => {
+  const changeToken1Amount = async pValue => {
     setToken1Amount(pValue);
-    let token2Amount = 0;
-    if (rate) {
-      token2Amount = Number.parseFloat(pValue) * Number.parseFloat(rate);
-      setToken2Amount(token2Amount.toFixed(2));
-    }
+    const smartTokenVal = Number.parseFloat(smartTokenRate1) * pValue * 2;
+    let secTokenValue = await calculateFundCost(
+      selectedSmartToken.smartTokenAddress,
+      selectedSecondToken.address,
+      selectedSmartToken.ownerAddress,
+      smartTokenVal
+    );
+    secTokenValue = getAmountInEth(secTokenValue);
+    console.log(secTokenValue);
+    setToken2Amount(secTokenValue);
+    // let token2Amount = 0;
+    // if (rate) {
+    //   token2Amount = Number.parseFloat(pValue) * Number.parseFloat(rate);
+    //   setToken2Amount(token2Amount.toFixed(2));
+    // }
   };
 
-  const changeToken2Amount = pValue => {
+  const changeToken2Amount = async pValue => {
     setToken2Amount(pValue);
-    if (rate) {
-      const token1Amount = Number.parseFloat(pValue) / Number.parseFloat(rate);
-      setToken1Amount(token1Amount.toFixed(2));
-    }
+    const smartTokenVal = Number.parseFloat(smartTokenRate2) * pValue * 2;
+    let firTokenValue = await calculateFundCostRate(
+      selectedSmartToken.smartTokenAddress,
+      selectedFirstToken.address,
+      selectedSmartToken.ownerAddress,
+      smartTokenVal
+    );
+    firTokenValue = getAmountInEth(firTokenValue);
+    console.log(firTokenValue);
+    setToken1Amount(firTokenValue);
+    // if (rate) {
+    //   const token1Amount = Number.parseFloat(pValue) / Number.parseFloat(rate);
+    //   setToken1Amount(token1Amount.toFixed(2));
+    // }
   };
 
   const getTotalSmartTokenAmount = () => {
@@ -207,7 +229,6 @@ function PoolLiquidityWidget(props) {
     ];
     if (pTab.toLowerCase() === "add") {
       addLiquidity(
-        selectedSmartToken.smartTokenAddress,
         getTotalSmartTokenAmount(),
         selectedSmartToken.ownerAddress,
         pTokenDetails,
