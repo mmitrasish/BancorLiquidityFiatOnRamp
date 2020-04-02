@@ -447,3 +447,36 @@ export const swapTokens = async (
     return swapT;
   }
 };
+
+export const getUserTokenBalance = async (pTokenAddress, pUserAddress) => {
+  const token = await contractERC20(pTokenAddress);
+  const balanceOfToken = await token.methods.balanceOf();
+  return balanceOfToken;
+};
+
+export const getUserEthBalance = async pUserAddress => {
+  const balance = await web3.eth.getBalance(pUserAddress);
+  return balance;
+};
+
+export const checkDeposit = async (
+  amount,
+  pTokenAddress,
+  pUserAddress,
+  pIsEth
+) => {
+  let check;
+  if (!pIsEth) {
+    check = amount >= getUserBalance(pTokenAddress, pUserAddress);
+  } else {
+    check = amount >= getUserEthBalance(pTokenAddress, pUserAddress);
+  }
+  return check;
+};
+
+export const finalizeLiquidity = async() =>{
+  // To check the if there is any difference in amount we have
+  // prompt for eth topup
+  // swap from eth to required tokens.
+  // add Liquidity now.
+}
