@@ -40,6 +40,7 @@ function PoolLiquidityWidget(props) {
   const [selectedSmartToken, setSelectedSmartToken] = React.useState(
     props.config.token
   );
+  const [smartTokenAmount, setSmartTokenAmount] = React.useState(0);
 
   const getTokenIcon = tokenAddress => {
     try {
@@ -102,6 +103,7 @@ function PoolLiquidityWidget(props) {
   const changeToken1Amount = async pValue => {
     setToken1Amount(pValue);
     const smartTokenVal = Number.parseFloat(smartTokenRate1) * pValue * 2;
+    setSmartTokenAmount(smartTokenVal);
     let secTokenValue = await calculateFundCost(
       selectedSmartToken.smartTokenAddress,
       selectedSecondToken.address,
@@ -116,6 +118,7 @@ function PoolLiquidityWidget(props) {
   const changeToken2Amount = async pValue => {
     setToken2Amount(pValue);
     const smartTokenVal = Number.parseFloat(smartTokenRate2) * pValue * 2;
+    setSmartTokenAmount(smartTokenVal);
     let firTokenValue = await calculateFundCostRate(
       selectedSmartToken.smartTokenAddress,
       selectedFirstToken.address,
@@ -125,15 +128,6 @@ function PoolLiquidityWidget(props) {
     firTokenValue = getAmountInEth(firTokenValue);
     // console.log(firTokenValue);
     setToken1Amount(firTokenValue);
-  };
-
-  const getTotalSmartTokenAmount = () => {
-    if (smartTokenRate1 && smartTokenRate2) {
-      return (
-        Number.parseFloat(smartTokenRate1) * token1Amount +
-        Number.parseFloat(smartTokenRate2) * token2Amount
-      );
-    }
   };
 
   const getFirstTokensList = () => {
@@ -192,14 +186,16 @@ function PoolLiquidityWidget(props) {
     ];
     if (pTab.toLowerCase() === "add") {
       addLiquidity(
-        getTotalSmartTokenAmount(),
+        selectedSmartToken.smartTokenAddress,
+        smartTokenAmount,
         selectedSmartToken.ownerAddress,
         pTokenDetails,
         props.userAddress
       );
     } else if (pTab.toLowerCase() === "withdraw") {
       withdrawLiquidity(
-        getTotalSmartTokenAmount(),
+        selectedSmartToken.smartTokenAddress,
+        smartTokenAmount,
         selectedSmartToken.ownerAddress,
         pTokenDetails,
         props.userAddress
@@ -451,8 +447,7 @@ function PoolLiquidityWidget(props) {
                       </div>
                     </div>
                     <div className="summary-total-amount">
-                      {selectedSmartToken.symbol}{" "}
-                      {getTotalSmartTokenAmount().toFixed(2)}
+                      {selectedSmartToken.symbol} {smartTokenAmount.toFixed(2)}
                     </div>
                   </div>
                 </div>

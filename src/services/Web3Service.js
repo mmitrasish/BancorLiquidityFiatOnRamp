@@ -309,6 +309,7 @@ export const getBalances = async pTokens => {
 };
 
 export const addLiquidity = async (
+  pSmartTokenAddress,
   pAmount,
   pOwnerAddress,
   pResTokensDetail,
@@ -339,6 +340,17 @@ export const addLiquidity = async (
     })
   );
 
+  const resAmount = await Promise.all(
+    pResTokensDetail.map(async resToken => {
+      return calculateFundCost(
+        pSmartTokenAddress,
+        resToken.address,
+        pOwnerAddress,
+        pAmount
+      );
+    })
+  );
+  console.log(resAmount);
   const bancorConverterContract = new web3.eth.Contract(
     BANCOR_CONVERTER_ABI,
     pOwnerAddress
@@ -450,12 +462,12 @@ export const swapTokens = async (
 
 export const getUserTokenBalance = async (pTokenAddress, pUserAddress) => {
   const token = await contractERC20(pTokenAddress);
-  const balanceOfToken = await token.methods.balanceOf();
+  const balanceOfToken = await token.methods.balanceOf().call();
   return balanceOfToken;
 };
 
 export const getUserEthBalance = async pUserAddress => {
-  const balance = await web3.eth.getBalance(pUserAddress);
+  const balance = await web3.eth.getBalance(pUserAddress).call();
   return balance;
 };
 
@@ -467,16 +479,16 @@ export const checkDeposit = async (
 ) => {
   let check;
   if (!pIsEth) {
-    check = amount >= getUserBalance(pTokenAddress, pUserAddress);
+    check = amount >= getUserTokenBalance(pTokenAddress, pUserAddress);
   } else {
     check = amount >= getUserEthBalance(pTokenAddress, pUserAddress);
   }
   return check;
 };
 
-export const finalizeLiquidity = async() =>{
+export const finalizeLiquidity = async () => {
   // To check the if there is any difference in amount we have
   // prompt for eth topup
   // swap from eth to required tokens.
   // add Liquidity now.
-}
+};
