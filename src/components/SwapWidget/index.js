@@ -278,6 +278,9 @@ function SwapWidget(props) {
                   type="button"
                   className="buy-button"
                   onClick={e => swapResTokens()}
+                  disabled={
+                    selectedSecondToken.address === selectedFirstToken.address
+                  }
                 >
                   Swap
                 </button>

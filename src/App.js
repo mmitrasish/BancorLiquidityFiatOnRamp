@@ -14,6 +14,7 @@ import {
 import Pools from "./components/Pools";
 import SwapWidget from "./components/SwapWidget";
 import ReceiptWidget from "./components/ReceiptWidget";
+import MoonpayWidget from "./components/MoonpayWidget";
 import LiquidityWidget from "./components/LiquidityWidget";
 import { appConfig, setAppConfig } from "./config";
 
@@ -26,7 +27,8 @@ class App extends React.Component {
       filteredPoolTokens: [],
       page: "home",
       liquidityPageConfig: undefined,
-      receiptConfig: undefined
+      receiptConfig: undefined,
+      moonpayAmount: 3
     };
   }
 
@@ -199,6 +201,12 @@ class App extends React.Component {
             userAddress={this.state.address}
             receiptConfig={this.state.receiptConfig}
             changePage={this.changePage}
+          />
+        ) : null}
+        {this.state.page === "moonpay" ? (
+          <MoonpayWidget
+            userAddress={this.state.address}
+            ethAmount={this.state.moonpayAmount}
           />
         ) : null}
         {/* <Widget /> */}

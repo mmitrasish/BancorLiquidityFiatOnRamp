@@ -302,6 +302,16 @@
           box-shadow: 0 5px 4px darken(#a9a9a985, 5%);
           transform: translateY(1px);
         }
+
+        &:disabled {
+          cursor: not-allowed;
+          background: lighten(#3271ee, 10);
+
+          &:hover {
+            transform: scale(1) !important;
+            box-shadow: 0 2px 4px #a9a9a985 !important;
+          }
+        }
       }
     }
   }

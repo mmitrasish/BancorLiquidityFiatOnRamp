@@ -75,7 +75,11 @@ function PoolLiquidityWidget(props) {
                   <FontAwesomeIcon icon={faChevronRight} />
                 </span>
               </button>
-              <button type="button" className="moonpay-option">
+              <button
+                type="button"
+                className="moonpay-option"
+                onClick={e => props.changePage("moonpay")}
+              >
                 <span>Top up with Moonpay</span>
                 <span className="right-icon">
                   <FontAwesomeIcon icon={faChevronRight} />

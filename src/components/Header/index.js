@@ -44,9 +44,7 @@ function Header(props) {
           </div>
           <div
             className={`header-tab ${
-              props.page === "home" || props.page === "liquidity"
-                ? "tab-active"
-                : null
+              props.page !== "swap" ? "tab-active" : null
             }`}
             onClick={e => props.changePage("home")}
           >
