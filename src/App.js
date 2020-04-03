@@ -13,7 +13,8 @@ import {
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
 import SwapWidget from "./components/SwapWidget";
-import PoolLiquidityWidget from "./components/PoolLiquidityWidget";
+import ReceiptWidget from "./components/ReceiptWidget";
+import LiquidityWidget from "./components/LiquidityWidget";
 import { appConfig, setAppConfig } from "./config";
 
 class App extends React.Component {
@@ -24,7 +25,8 @@ class App extends React.Component {
       allPoolTokens: [],
       filteredPoolTokens: [],
       page: "home",
-      liquidityPageConfig: undefined
+      liquidityPageConfig: undefined,
+      receiptConfig: undefined
     };
   }
 
@@ -38,6 +40,10 @@ class App extends React.Component {
 
   addLiquidityPageConfig = config => {
     this.setState({ liquidityPageConfig: config });
+  };
+
+  addReceiptConfig = config => {
+    this.setState({ receiptConfig: config });
   };
 
   checkEthereumChange = () => {
@@ -79,7 +85,6 @@ class App extends React.Component {
       setAppConfig(1);
     }
     const address = await getAccount();
-    console.log(address);
     this.changeAddress(address);
     this.getAllPoolItems();
   };
@@ -152,7 +157,6 @@ class App extends React.Component {
         return true;
       return false;
     });
-    console.log(filteredPoolTokens);
     this.setState({ filteredPoolTokens });
   };
 
@@ -175,17 +179,26 @@ class App extends React.Component {
           />
         ) : null}
         {this.state.page === "liquidity" ? (
-          <PoolLiquidityWidget
+          <LiquidityWidget
             config={this.state.liquidityPageConfig}
             changePage={this.changePage}
             userAddress={this.state.address}
             allPoolTokens={this.state.allPoolTokens}
+            setReceiptConfig={this.addReceiptConfig}
+            setLiquidityPageConfig={this.addLiquidityPageConfig}
           />
         ) : null}
         {this.state.page === "swap" ? (
           <SwapWidget
             userAddress={this.state.address}
             allPoolTokens={this.state.allPoolTokens}
+          />
+        ) : null}
+        {this.state.page === "receipt" ? (
+          <ReceiptWidget
+            userAddress={this.state.address}
+            receiptConfig={this.state.receiptConfig}
+            changePage={this.changePage}
           />
         ) : null}
         {/* <Widget /> */}

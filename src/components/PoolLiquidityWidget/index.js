@@ -119,7 +119,7 @@ function PoolLiquidityWidget(props) {
     setToken2Amount(pValue);
     const smartTokenVal = Number.parseFloat(smartTokenRate2) * pValue * 2;
     setSmartTokenAmount(smartTokenVal);
-    let firTokenValue = await calculateFundCostRate(
+    let firTokenValue = await calculateFundCost(
       selectedSmartToken.smartTokenAddress,
       selectedFirstToken.address,
       selectedSmartToken.ownerAddress,
@@ -201,6 +201,23 @@ function PoolLiquidityWidget(props) {
         props.userAddress
       );
     }
+  };
+
+  const sendToReceipt = () => {
+    const liquidityWidgetConfig = {
+      type: tab,
+      token: selectedSmartToken
+    };
+    props.setLiquidityPageConfig(liquidityWidgetConfig);
+    const receiptConfig = {
+      type: tab,
+      smartTokenDetails: {
+        token: selectedSmartToken,
+        amount: smartTokenAmount
+      }
+    };
+    props.setReceiptConfig(receiptConfig);
+    props.changePage("receipt");
   };
 
   const selectFirstToken = pToken => {
@@ -456,7 +473,7 @@ function PoolLiquidityWidget(props) {
                 <button
                   type="button"
                   className="buy-button"
-                  onClick={e => liquidityAction(tab)}
+                  onClick={e => sendToReceipt()}
                 >
                   {tab} Liquidity
                 </button>
