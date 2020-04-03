@@ -214,7 +214,8 @@ function LiquidityWidget(props) {
                 <div className="summary-container">
                   <label className="summary-title">Summary</label>
                   <div className="summary-item">
-                    <div className="full-summary">
+                    <div className="full-summary-title">You Deposit</div>
+                    <div className="summary-total-amount">
                       <div className="full-summary-tilda">~</div>
                       <div className="full-summary-item">
                         <div>
@@ -227,8 +228,14 @@ function LiquidityWidget(props) {
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div className="summary-item">
+                    <div className="full-summary-title">You Receive</div>
                     <div className="summary-total-amount">
-                      {selectedSmartToken.symbol} {smartTokenAmount.toFixed(2)}
+                      <div className="full-summary-item">
+                        <label>{smartTokenAmount.toFixed(2)}</label>{" "}
+                        {selectedSmartToken.symbol}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -264,12 +264,18 @@
         display: flex;
         align-items: baseline;
         font-size: 14px;
-        margin-top: 8px;
+        margin: 8px 0px 18px 0px;
 
-        .full-summary {
+        .full-summary-title {
+          display: flex;
+          flex-grow: 1;
+        }
+
+        .summary-total-amount {
+          text-align: right;
+          font-weight: 500;
           display: flex;
           align-items: baseline;
-          flex-grow: 1;
 
           .full-summary-tilda {
             margin-right: 8px;
@@ -281,17 +287,12 @@
             }
           }
         }
-
-        .summary-total-amount {
-          text-align: right;
-          font-weight: 500;
-        }
       }
     }
 
     .buy-container {
       text-align: center;
-      margin-top: 7rem;
+      margin-top: 5rem;
 
       .buy-button {
         width: 56%;
