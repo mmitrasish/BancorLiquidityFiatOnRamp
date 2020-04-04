@@ -51,7 +51,7 @@ function LiquidityWidget(props) {
       type: tab,
       smartTokenDetails: {
         token: selectedSmartToken,
-        amount: smartTokenAmount
+        amount: Number.parseFloat(smartTokenAmount)
       }
     };
     props.setReceiptConfig(receiptConfig);
@@ -61,10 +61,15 @@ function LiquidityWidget(props) {
 
   const selectSmartToken = pToken => {
     setSelectedSmartToken(pToken);
+    getReserveTokenAmt();
+    setSmartTokenAmount(0);
     setOpenSmartTokensList(false);
   };
 
   const getReserveTokenAmt = async () => {
+    if (!loading) {
+      setLoading(true);
+    }
     let firstTokenRate = await calculateFundCost(
       selectedSmartToken.smartTokenAddress,
       selectedSmartToken.connectorTokens[0].address,
@@ -81,14 +86,12 @@ function LiquidityWidget(props) {
     );
     secondTokenRate = getAmountInEth(secondTokenRate);
     setSecTokenRate(Number.parseFloat(secondTokenRate));
-    if (loading) {
-      console.log(firstTokenRate, secondTokenRate);
-      setLoading(false);
-    }
+
+    setLoading(false);
   };
 
   const changeSmartTokenAmount = async pValue => {
-    setSmartTokenAmount(Number.parseFloat(pValue));
+    setSmartTokenAmount(pValue);
     const firstTokenAmount = Number.parseFloat(pValue) * firTokenRate;
     setFirTokenAmount(firstTokenAmount);
     const secondTokenAmount = Number.parseFloat(pValue) * secTokenRate;
@@ -244,7 +247,9 @@ function LiquidityWidget(props) {
                     <div className="summary-total-amount">
                       <div className="res-amount">
                         <div className="full-summary-item">
-                          <label>{smartTokenAmount.toFixed(2)}</label>{" "}
+                          <label>
+                            {Number.parseFloat(smartTokenAmount).toFixed(2)}
+                          </label>{" "}
                           {selectedSmartToken.symbol}
                         </div>
                       </div>

@@ -443,6 +443,7 @@ export const swapTokens = async (
       blockchainId: pReceiveAddress
     };
     path = await sdk.getCheapestPath(sourceToken, targetToken, "1");
+    path = path.map(item => item.blockchainId);
     await SDK.destroy(sdk);
   } catch (error) {
     console.log(error);
@@ -460,7 +461,7 @@ export const swapTokens = async (
   //   .call();
 
   const from = "0x75e4DD0587663Fce5B2D9aF7fbED3AC54342d3dB";
-  // console.log(path);
+  console.log(path);
   if (pIsEth) {
     const swapEth = await bancorNetworkContract.methods
       .convert2(path, amount, "1", from, "10000")
@@ -492,7 +493,7 @@ export const getUserBalance = async (pTokenAddress, pUserAddress, pIsEth) => {
     const token = await contractERC20(pTokenAddress);
     balance = await token.methods.balanceOf(pUserAddress).call();
   } else {
-    balance = await web3.eth.getBalance(pUserAddress).call();
+    balance = await web3.eth.getBalance(pUserAddress);
   }
   return balance;
 };
@@ -518,16 +519,12 @@ export const checkDeposit = async (
   // check = amount < balance;
 
   diff = amount - balance;
-  console.log(typeof amount, typeof diff);
-  console.log(amount, " - ", balance, " = ", diff);
   check = !(diff > 0);
   if (!check) {
     if (!pIsEth) {
       let rate = await getTokenRate(pTokenAddress, pWethAddress);
       rate = Number.parseFloat(rate);
-      console.log(diff, rate);
       topup = rate * diff;
-      console.log(topup);
     }
     topup = Number.parseFloat(web3.utils.fromWei(topup + "")) + 0.1;
   }
@@ -537,8 +534,7 @@ export const checkDeposit = async (
 // To check if eth is enough.
 export const checkEthForTopUp = async (amount, pUserAddress) => {
   let balance = await web3.eth.getBalance(pUserAddress);
-  balance = Number.parseFloat(web3.utils.fromWei(balance))
+  balance = Number.parseFloat(web3.utils.fromWei(balance));
   const check = amount >= balance;
-  console.log(check, balance, amount)
   return check;
 };

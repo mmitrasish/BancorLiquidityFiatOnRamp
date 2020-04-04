@@ -18,6 +18,7 @@ import MoonpayWidget from "./components/MoonpayWidget";
 import LiquidityWidget from "./components/LiquidityWidget";
 import { appConfig, setAppConfig } from "./config";
 import { withRouter } from "react-router";
+import Modal from "./components/Modal";
 
 class App extends React.Component {
   constructor(props) {
@@ -29,7 +30,13 @@ class App extends React.Component {
       page: "pools",
       liquidityPageConfig: undefined,
       receiptConfig: undefined,
-      moonpayAmount: 3
+      moonpayAmount: 3,
+      openModal: false,
+      modalConfig: {
+        status: "pending",
+        title: "Pending",
+        message: "Working"
+      }
     };
   }
 
@@ -39,6 +46,18 @@ class App extends React.Component {
 
   changePage = page => {
     this.setState({ page });
+  };
+
+  setOpenModal = pFlag => {
+    this.setState({ openModal: pFlag });
+  };
+
+  setModalConfig = pConfig => {
+    this.setState({ modalConfig: pConfig });
+  };
+
+  setMoonpayAmount = amount => {
+    this.setState({ moonpayAmount: amount });
   };
 
   addLiquidityPageConfig = config => {
@@ -177,6 +196,11 @@ class App extends React.Component {
     this.checkEthereumChange();
     return (
       <div className="App">
+        <Modal
+          setOpenModal={this.setOpenModal}
+          openModal={this.state.openModal}
+          config={this.state.modalConfig}
+        />
         <Header
           setAddress={this.changeAddress}
           address={this.state.address}
@@ -213,6 +237,7 @@ class App extends React.Component {
             receiptConfig={this.state.receiptConfig}
             allPoolTokens={this.state.allPoolTokens}
             changePage={this.changePage}
+            setMoonpayAmount={this.setMoonpayAmount}
           />
         ) : null}
         {this.state.page === "moonpay" ? (

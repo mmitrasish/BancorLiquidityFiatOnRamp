@@ -35,7 +35,12 @@ function Loader(props) {
         </div>
       ) : null}
       {props.loaderType === "circle" ? (
-        <div className="circle-loader"></div>
+        <div className="lds-ring">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
       ) : null}
     </div>
   );

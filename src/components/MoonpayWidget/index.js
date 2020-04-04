@@ -13,7 +13,7 @@ function MoonpayWidget(props) {
     const ethRate = await getEthExchangeRate();
     console.log(ethRate);
     const ethGBPRate = ethRate["GBP"];
-    console.log(ethGBPRate);
+    console.log(ethGBPRate, props.ethAmount);
     const gbpAmount = Number.parseFloat(props.ethAmount) * ethGBPRate;
     console.log(gbpAmount);
     setBaseAmount(gbpAmount);
@@ -32,7 +32,7 @@ function MoonpayWidget(props) {
             allow="accelerometer; autoplay; camera; gyroscope; payment"
             frameBorder="0"
             height="100%"
-            src={`https://buy-staging.moonpay.io?apiKey=pk_test_U3wU9qqx87F9EbTVKEnLIIWrhtkeekT&currencyCode=eth&walletAddress=${props.userAddress}&baseCurrencyAmount=${baseAmount}`}
+            src={`https://buy-staging.moonpay.io?apiKey=pk_test_U3wU9qqx87F9EbTVKEnLIIWrhtkeekT&currencyCode=eth&walletAddress=${props.userAddress}&baseCurrencyAmount=${baseAmount}&redirectURL=http://localhost:3000/receipt`}
             width="100%"
           >
             <p>Your browser does not support iframes.</p>

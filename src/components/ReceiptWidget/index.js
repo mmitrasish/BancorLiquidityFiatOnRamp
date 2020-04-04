@@ -25,6 +25,7 @@ function PoolLiquidityWidget(props) {
   const [secondTokenAmount, setSecondTokenAmount] = React.useState(0);
 
   const [note, setNote] = React.useState("");
+  const [ethTopup, setEthTopup] = React.useState(0);
 
   const getTokenIcon = tokenAddress => {
     try {
@@ -74,12 +75,20 @@ function PoolLiquidityWidget(props) {
       });
     });
 
-    let firstTokenBalance = await getUserBalance(firstTokenAddress, props.userAddress, isEthTokenFir)
-    firstTokenBalance = getAmountInEth(firstTokenBalance)
-    let secondTokenBalance = await getUserBalance(secondTokenAddress, props.userAddress, isEthTokenSec)
-    secondTokenBalance = getAmountInEth(secondTokenBalance)
-    setFirstTokenBalance(firstTokenBalance)
-    setSecondTokenBalance(secondTokenBalance)
+    let firstTokenBalance = await getUserBalance(
+      firstTokenAddress,
+      props.userAddress,
+      isEthTokenFir
+    );
+    firstTokenBalance = getAmountInEth(firstTokenBalance);
+    let secondTokenBalance = await getUserBalance(
+      secondTokenAddress,
+      props.userAddress,
+      isEthTokenSec
+    );
+    secondTokenBalance = getAmountInEth(secondTokenBalance);
+    setFirstTokenBalance(firstTokenBalance);
+    setSecondTokenBalance(secondTokenBalance);
     const firstTokenConfig = await checkDeposit(
       firstTokenValue,
       firstTokenAddress,
@@ -95,19 +104,21 @@ function PoolLiquidityWidget(props) {
       isEthTokenSec
     );
 
-    setFirstTokenConfig(firstTokenConfig)
-    setSecondTokenConfig(secondTokenConfig)
+    setFirstTokenConfig(firstTokenConfig);
+    setSecondTokenConfig(secondTokenConfig);
 
     const checkTokenTopup = firstTokenConfig.check && secondTokenConfig.check;
-    const topupValue = firstTokenConfig.topup + secondTokenConfig.topup;
-    const checkEthTopup = await checkEthForTopUp(topupValue, props.userAddress)
-    if(!checkTokenTopup){
-      if(checkEthTopup)
-      setNote(`Note: Topup with Fiat onRamp for this much ${topupValue} Eth`);
-      else
-      setNote(`Note: Topup your reserve tokens`);
+    const topupValue =
+      (firstTokenConfig.topup ? firstTokenConfig.topup : 0) +
+      (secondTokenConfig.topup ? secondTokenConfig.topup : 0);
+    console.log(topupValue);
+    setEthTopup(topupValue);
+    const checkEthTopup = await checkEthForTopUp(topupValue, props.userAddress);
+    if (!checkTokenTopup) {
+      if (checkEthTopup)
+        setNote(`Note: Topup with Fiat onRamp for this much ${topupValue} Eth`);
+      else setNote(`Note: Topup your reserve tokens`);
     }
-
 
     console.log(firstTokenConfig);
     console.log(secondTokenConfig);
@@ -115,6 +126,11 @@ function PoolLiquidityWidget(props) {
     if (loading) {
       setLoading(false);
     }
+  };
+
+  const sendToMoonpay = () => {
+    props.setMoonpayAmount(ethTopup);
+    history.push("/moonpay");
   };
 
   return (
@@ -150,7 +166,7 @@ function PoolLiquidityWidget(props) {
               <button
                 type="button"
                 className="moonpay-option"
-                onClick={e => history.push("/moonpay")}
+                onClick={e => sendToMoonpay()}
               >
                 <span>Top up with Moonpay</span>
                 <span className="right-icon">
@@ -161,7 +177,11 @@ function PoolLiquidityWidget(props) {
             <div className="deposit-summary-container">
               <div className="deposit-summary-title">Deposit Summary</div>
               <div className="deposit-summary">
-                <div className="token-container">
+                <div
+                  className={`token-container ${
+                    !firstTokenConfig.check ? "de-active" : null
+                  }`}
+                >
                   <div>
                     <img
                       src={getTokenIcon("0x000")}
@@ -182,7 +202,7 @@ function PoolLiquidityWidget(props) {
                     <span>
                       Balance:{" "}
                       <label>
-                        {firstTokenBalance}{" "}
+                        {Number.parseFloat(firstTokenBalance).toFixed(2)}{" "}
                         {
                           props.receiptConfig.smartTokenDetails.token
                             .connectorTokens[0].info.symbol
@@ -194,7 +214,11 @@ function PoolLiquidityWidget(props) {
                 <div className="plus-icon">
                   <FontAwesomeIcon icon={faPlus} />
                 </div>
-                <div className="token-container">
+                <div
+                  className={`token-container ${
+                    !secondTokenConfig.check ? "de-active" : null
+                  }`}
+                >
                   <div>
                     <img
                       src={getTokenIcon("0x000")}
@@ -215,7 +239,7 @@ function PoolLiquidityWidget(props) {
                     <span>
                       Balance:{" "}
                       <label>
-                      {secondTokenBalance}{" "}
+                        {Number.parseFloat(secondTokenBalance).toFixed(2)}{" "}
                         {
                           props.receiptConfig.smartTokenDetails.token
                             .connectorTokens[1].info.symbol
@@ -237,9 +261,7 @@ function PoolLiquidityWidget(props) {
                   {props.receiptConfig.smartTokenDetails.token.symbol}
                 </div>
               </div>
-              <div className="note">
-               {note}
-              </div>
+              <div className="note">{note}</div>
               <div className="buy-container">
                 <button type="button" className="buy-button" disabled>
                   Add Liquidity

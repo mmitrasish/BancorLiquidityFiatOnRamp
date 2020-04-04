@@ -75,16 +75,22 @@ function SwapWidget(props) {
     });
     setFirstTokensUniqueList(allTokensUniqueList);
     setSecondTokensUniqueList(allTokensUniqueList);
-    console.log(allTokensUniqueList);
     setSelectedFirstToken(allTokensUniqueList[0]);
     setSelectedSecondToken(allTokensUniqueList[1]);
     getSwapRate(allTokensUniqueList[0], allTokensUniqueList[1]);
   };
 
   const getSwapRate = async (pSourceToken, pTargetToken) => {
-    const rate = await getTokenRate(pSourceToken.address, pTargetToken.address);
-    setRate(rate);
-    if (loading) {
+    if (pSourceToken.address !== pTargetToken.address) {
+      if (!loading) {
+        setLoading(true);
+      }
+      const rate = await getTokenRate(
+        pSourceToken.address,
+        pTargetToken.address
+      );
+      // console.log(rate);
+      setRate(rate);
       setLoading(false);
     }
   };
@@ -99,16 +105,23 @@ function SwapWidget(props) {
 
   const selectFirstToken = pToken => {
     setSelectedFirstToken(pToken);
+    getSwapRate(pToken, selectedSecondToken);
+    setToken1Amount(0);
+    setToken2Amount(0);
     toggleFirstTokens(false);
   };
 
   const selectSecondToken = pToken => {
     setSelectedSecondToken(pToken);
+    getSwapRate(selectedFirstToken, pToken);
+    setToken1Amount(0);
+    setToken2Amount(0);
     toggleSecondTokens(false);
   };
 
   const swapResTokens = () => {
     const isEth = selectedFirstToken.info.symbol.toLowerCase() === "eth";
+    console.log("Entered");
     swapTokens(
       token1Amount,
       selectedFirstToken.address,
