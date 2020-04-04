@@ -3,8 +3,10 @@ import "./header.scss";
 import { getAccount } from "../../services/Web3Service";
 import { shortenAddress } from "../../utils";
 import makeBlockie from "ethereum-blockies-base64";
+import { useHistory } from "react-router-dom";
 
 function Header(props) {
+  let history = useHistory();
   const handleConnect = async () => {
     const address = await getAccount();
     props.setAddress(address);
@@ -38,7 +40,7 @@ function Header(props) {
             className={`header-tab ${
               props.page === "swap" ? "tab-active" : null
             }`}
-            onClick={e => props.changePage("swap")}
+            onClick={e => history.push("/swap")}
           >
             Swap
           </div>
@@ -46,7 +48,7 @@ function Header(props) {
             className={`header-tab ${
               props.page !== "swap" ? "tab-active" : null
             }`}
-            onClick={e => props.changePage("home")}
+            onClick={e => history.push("/pools")}
           >
             Pools
           </div>

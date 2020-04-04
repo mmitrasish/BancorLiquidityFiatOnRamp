@@ -6,25 +6,22 @@ import {
   faTimes,
   faChevronRight
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  calculateFundCostRate,
-  getBalances,
-  addLiquidity,
-  withdrawLiquidity,
-  calculateFundCost,
-  getAmountInEth
-} from "../../services/Web3Service";
-import { showError } from "../../utils/index";
+import { calculateFundCost, getAmountInEth } from "../../services/Web3Service";
+import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
 
 function LiquidityWidget(props) {
+  let history = useHistory();
   const [tab, setTab] = React.useState(props.config.type);
   const [loading, setLoading] = React.useState(true);
+  const [resAmountLoading, setResAmountLoading] = React.useState(false);
   const [openSmartTokensList, setOpenSmartTokensList] = React.useState(false);
   const [selectedSmartToken, setSelectedSmartToken] = React.useState(
     props.config.token
   );
   const [smartTokenAmount, setSmartTokenAmount] = React.useState(0);
+  const [firTokenRate, setFirTokenRate] = React.useState(0);
+  const [secTokenRate, setSecTokenRate] = React.useState(0);
   const [firTokenAmount, setFirTokenAmount] = React.useState(0);
   const [secTokenAmount, setSecTokenAmount] = React.useState(0);
 
@@ -37,10 +34,8 @@ function LiquidityWidget(props) {
   };
 
   React.useEffect(() => {
-    if (loading) {
-      setLoading(false);
-    }
-  }, [props.config.token]);
+    getReserveTokenAmt();
+  }, []);
 
   const toggleSmartTokensList = pFlag => {
     setOpenSmartTokensList(pFlag);
@@ -60,7 +55,8 @@ function LiquidityWidget(props) {
       }
     };
     props.setReceiptConfig(receiptConfig);
-    props.changePage("receipt");
+    history.push("/receipt");
+    // props.changePage("receipt");
   };
 
   const selectSmartToken = pToken => {
@@ -68,33 +64,35 @@ function LiquidityWidget(props) {
     setOpenSmartTokensList(false);
   };
 
-  React.useEffect(() => {
-    getReserveTokenAmt(smartTokenAmount);
-  }, [smartTokenAmount]);
-
-  const getReserveTokenAmt = async pValue => {
-    if (pValue) {
-      let firstTokenValue = await calculateFundCost(
-        selectedSmartToken.smartTokenAddress,
-        selectedSmartToken.connectorTokens[0].address,
-        selectedSmartToken.ownerAddress,
-        pValue
-      );
-      firstTokenValue = getAmountInEth(firstTokenValue);
-      setFirTokenAmount(Number.parseFloat(firstTokenValue));
-      let secondTokenValue = await calculateFundCost(
-        selectedSmartToken.smartTokenAddress,
-        selectedSmartToken.connectorTokens[1].address,
-        selectedSmartToken.ownerAddress,
-        pValue
-      );
-      secondTokenValue = getAmountInEth(secondTokenValue);
-      setSecTokenAmount(Number.parseFloat(secondTokenValue));
+  const getReserveTokenAmt = async () => {
+    let firstTokenRate = await calculateFundCost(
+      selectedSmartToken.smartTokenAddress,
+      selectedSmartToken.connectorTokens[0].address,
+      selectedSmartToken.ownerAddress,
+      1
+    );
+    firstTokenRate = getAmountInEth(firstTokenRate);
+    setFirTokenRate(Number.parseFloat(firstTokenRate));
+    let secondTokenRate = await calculateFundCost(
+      selectedSmartToken.smartTokenAddress,
+      selectedSmartToken.connectorTokens[1].address,
+      selectedSmartToken.ownerAddress,
+      1
+    );
+    secondTokenRate = getAmountInEth(secondTokenRate);
+    setSecTokenRate(Number.parseFloat(secondTokenRate));
+    if (loading) {
+      console.log(firstTokenRate, secondTokenRate);
+      setLoading(false);
     }
   };
 
   const changeSmartTokenAmount = async pValue => {
     setSmartTokenAmount(Number.parseFloat(pValue));
+    const firstTokenAmount = Number.parseFloat(pValue) * firTokenRate;
+    setFirTokenAmount(firstTokenAmount);
+    const secondTokenAmount = Number.parseFloat(pValue) * secTokenRate;
+    setSecTokenAmount(secondTokenAmount);
   };
 
   return (
@@ -157,7 +155,7 @@ function LiquidityWidget(props) {
             </h3>
           </div>
           {loading ? (
-            <Loader />
+            <Loader loaderType="box" />
           ) : (
             <div>
               <div className="widget-tabs">
@@ -216,25 +214,39 @@ function LiquidityWidget(props) {
                   <div className="summary-item">
                     <div className="full-summary-title">You Deposit</div>
                     <div className="summary-total-amount">
-                      <div className="full-summary-tilda">~</div>
-                      <div className="full-summary-item">
-                        <div>
-                          <label>{firTokenAmount.toFixed(2)}</label>{" "}
-                          {selectedSmartToken.connectorTokens[0].info.symbol}
+                      {resAmountLoading ? (
+                        <Loader loaderType="circle" />
+                      ) : (
+                        <div className="res-amount">
+                          <div className="full-summary-tilda">~</div>
+                          <div className="full-summary-item">
+                            <div>
+                              <label>{firTokenAmount.toFixed(2)}</label>{" "}
+                              {
+                                selectedSmartToken.connectorTokens[0].info
+                                  .symbol
+                              }
+                            </div>
+                            <div>
+                              <label>{secTokenAmount.toFixed(2)}</label>{" "}
+                              {
+                                selectedSmartToken.connectorTokens[1].info
+                                  .symbol
+                              }
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <label>{secTokenAmount.toFixed(2)}</label>{" "}
-                          {selectedSmartToken.connectorTokens[1].info.symbol}
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                   <div className="summary-item">
                     <div className="full-summary-title">You Receive</div>
                     <div className="summary-total-amount">
-                      <div className="full-summary-item">
-                        <label>{smartTokenAmount.toFixed(2)}</label>{" "}
-                        {selectedSmartToken.symbol}
+                      <div className="res-amount">
+                        <div className="full-summary-item">
+                          <label>{smartTokenAmount.toFixed(2)}</label>{" "}
+                          {selectedSmartToken.symbol}
+                        </div>
                       </div>
                     </div>
                   </div>

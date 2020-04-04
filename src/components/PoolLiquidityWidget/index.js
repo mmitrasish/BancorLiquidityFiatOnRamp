@@ -359,7 +359,7 @@ function PoolLiquidityWidget(props) {
             </h3>
           </div>
           {loading ? (
-            <Loader />
+            <Loader loaderType="box" />
           ) : (
             <div>
               <div className="widget-tabs">

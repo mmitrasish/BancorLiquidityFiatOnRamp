@@ -262,7 +262,7 @@
 
       .summary-item {
         display: flex;
-        align-items: baseline;
+        align-items: flex-start;
         font-size: 14px;
         margin: 8px 0px 18px 0px;
 
@@ -274,16 +274,18 @@
         .summary-total-amount {
           text-align: right;
           font-weight: 500;
-          display: flex;
-          align-items: baseline;
 
-          .full-summary-tilda {
-            margin-right: 8px;
-          }
+          .res-amount {
+            display: flex;
+            align-items: baseline;
+            .full-summary-tilda {
+              margin-right: 8px;
+            }
 
-          .full-summary-item {
-            label {
-              font-weight: 600;
+            .full-summary-item {
+              label {
+                font-weight: 600;
+              }
             }
           }
         }

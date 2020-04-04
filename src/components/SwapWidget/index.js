@@ -206,7 +206,7 @@ function SwapWidget(props) {
             <h3 className="widget-header-title">Swap Tokens</h3>
           </div>
           {loading ? (
-            <Loader />
+            <Loader loaderType="box" />
           ) : (
             <div>
               <div className="pay-container">

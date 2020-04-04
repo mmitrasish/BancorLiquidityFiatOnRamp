@@ -17,6 +17,7 @@ import ReceiptWidget from "./components/ReceiptWidget";
 import MoonpayWidget from "./components/MoonpayWidget";
 import LiquidityWidget from "./components/LiquidityWidget";
 import { appConfig, setAppConfig } from "./config";
+import { withRouter } from "react-router";
 
 class App extends React.Component {
   constructor(props) {
@@ -25,7 +26,7 @@ class App extends React.Component {
       address: undefined,
       allPoolTokens: [],
       filteredPoolTokens: [],
-      page: "home",
+      page: "pools",
       liquidityPageConfig: undefined,
       receiptConfig: undefined,
       moonpayAmount: 3
@@ -77,8 +78,18 @@ class App extends React.Component {
   };
 
   componentDidMount() {
+    this.routeAction();
     this.startProcess();
   }
+
+  routeAction = () => {
+    this.props.history.listen((location, action) => {
+      const page = location.pathname.split("/");
+      console.log(page[page.length - 1]);
+      this.setState({ page: page[page.length - 1] });
+    });
+    this.props.history.push("/pools");
+  };
 
   startProcess = async () => {
     if (window.ethereum.networkVersion) {
@@ -172,7 +183,7 @@ class App extends React.Component {
           page={this.state.page}
           changePage={this.changePage}
         />
-        {this.state.page === "home" ? (
+        {this.state.page === "pools" ? (
           <Pools
             allPoolTokens={this.state.filteredPoolTokens}
             changePage={this.changePage}
@@ -215,4 +226,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withRouter(App);

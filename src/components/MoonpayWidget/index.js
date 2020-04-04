@@ -24,9 +24,9 @@ function MoonpayWidget(props) {
   return (
     <div className="moonpay-widget">
       {loading ? (
-        <Loader />
+        <Loader loaderType="box" />
       ) : (
-        <div className="moonpay-container" tabindex="-1" role="group">
+        <div className="moonpay-container" tabIndex="-1" role="group">
           <iframe
             title="moonpay-widget"
             allow="accelerometer; autoplay; camera; gyroscope; payment"

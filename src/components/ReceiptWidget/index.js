@@ -3,10 +3,11 @@ import "./receipt_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { calculateFundCost, getAmountInEth } from "../../services/Web3Service";
-import { showError } from "../../utils/index";
+import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
 
 function PoolLiquidityWidget(props) {
+  let history = useHistory();
   const [loading, setLoading] = React.useState(true);
   const [firstTokenAmount, setFirstTokenAmount] = React.useState(0);
   const [secondTokenAmount, setSecondTokenAmount] = React.useState(0);
@@ -62,7 +63,7 @@ function PoolLiquidityWidget(props) {
           <h3 className="widget-header-title">Receipt</h3>
         </div>
         {loading ? (
-          <Loader />
+          <Loader loaderType="box" />
         ) : (
           <div>
             <div className="on-ramp-options-container">
@@ -78,7 +79,7 @@ function PoolLiquidityWidget(props) {
               <button
                 type="button"
                 className="moonpay-option"
-                onClick={e => props.changePage("moonpay")}
+                onClick={e => history.push("/moonpay")}
               >
                 <span>Top up with Moonpay</span>
                 <span className="right-icon">

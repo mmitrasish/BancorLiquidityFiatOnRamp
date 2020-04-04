@@ -1,9 +1,11 @@
 import React from "react";
 import "./pools.scss";
 import { shortenAddress } from "../../utils";
+import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
 
 function Pools(props) {
+  let history = useHistory();
   const [loading, setLoading] = React.useState(true);
   const [searchText, setSearchText] = React.useState("");
   const getTokenIcon = tokenAddress => {
@@ -22,7 +24,8 @@ function Pools(props) {
     }
     config.token = pToken;
     props.setLiquidityPageConfig(config);
-    props.changePage("liquidity");
+    history.push("/liquidity");
+    // props.changePage("liquidity");
   };
 
   const searchTextChange = pValue => {
@@ -45,7 +48,7 @@ function Pools(props) {
   return (
     <div className="pools">
       {loading ? (
-        <Loader />
+        <Loader loaderType="box" />
       ) : (
         <div className="pools-container">
           <div className="pools-header">
