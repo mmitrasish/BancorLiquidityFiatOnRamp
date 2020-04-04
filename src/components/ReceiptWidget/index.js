@@ -2,15 +2,29 @@ import React from "react";
 import "./receipt_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { calculateFundCost, getAmountInEth } from "../../services/Web3Service";
+import {
+  calculateFundCost,
+  getAmountInEth,
+  checkDeposit,
+  getUserBalance,
+  checkEthForTopUp
+} from "../../services/Web3Service";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
 
 function PoolLiquidityWidget(props) {
   let history = useHistory();
   const [loading, setLoading] = React.useState(true);
+  const [firstTokenBalance, setFirstTokenBalance] = React.useState(0);
+  const [secondTokenBalance, setSecondTokenBalance] = React.useState(0);
+
+  const [firstTokenConfig, setFirstTokenConfig] = React.useState(0);
+  const [secondTokenConfig, setSecondTokenConfig] = React.useState(0);
+
   const [firstTokenAmount, setFirstTokenAmount] = React.useState(0);
   const [secondTokenAmount, setSecondTokenAmount] = React.useState(0);
+
+  const [note, setNote] = React.useState("");
 
   const getTokenIcon = tokenAddress => {
     try {
@@ -31,16 +45,73 @@ function PoolLiquidityWidget(props) {
       props.receiptConfig.smartTokenDetails.token.ownerAddress,
       props.receiptConfig.smartTokenDetails.amount
     );
-    firstTokenValue = getAmountInEth(firstTokenValue);
-    setFirstTokenAmount(Number.parseFloat(firstTokenValue));
+    const firstTokenValueEth = getAmountInEth(firstTokenValue);
+    setFirstTokenAmount(Number.parseFloat(firstTokenValueEth));
     let secondTokenValue = await calculateFundCost(
       props.receiptConfig.smartTokenDetails.token.smartTokenAddress,
       props.receiptConfig.smartTokenDetails.token.connectorTokens[1].address,
       props.receiptConfig.smartTokenDetails.token.ownerAddress,
       props.receiptConfig.smartTokenDetails.amount
     );
-    secondTokenValue = getAmountInEth(secondTokenValue);
-    setSecondTokenAmount(Number.parseFloat(secondTokenValue));
+    const secondTokenValueEth = getAmountInEth(secondTokenValue);
+    setSecondTokenAmount(Number.parseFloat(secondTokenValueEth));
+
+    let ethAddress = "";
+    const firstTokenAddress =
+      props.receiptConfig.smartTokenDetails.token.connectorTokens[0].address;
+    const secondTokenAddress =
+      props.receiptConfig.smartTokenDetails.token.connectorTokens[1].address;
+    let isEthTokenFir = false;
+    let isEthTokenSec = false;
+    props.allPoolTokens.forEach(poolToken => {
+      poolToken.connectorTokens.forEach(token => {
+        if (token.info.symbol.toLowerCase() === "eth") {
+          ethAddress = token.address;
+          if (ethAddress === firstTokenAddress) isEthTokenFir = true;
+          if (ethAddress === secondTokenAddress) isEthTokenSec = true;
+          console.log(ethAddress);
+        }
+      });
+    });
+
+    let firstTokenBalance = await getUserBalance(firstTokenAddress, props.userAddress, isEthTokenFir)
+    firstTokenBalance = getAmountInEth(firstTokenBalance)
+    let secondTokenBalance = await getUserBalance(secondTokenAddress, props.userAddress, isEthTokenSec)
+    secondTokenBalance = getAmountInEth(secondTokenBalance)
+    setFirstTokenBalance(firstTokenBalance)
+    setSecondTokenBalance(secondTokenBalance)
+    const firstTokenConfig = await checkDeposit(
+      firstTokenValue,
+      firstTokenAddress,
+      ethAddress,
+      props.userAddress,
+      isEthTokenFir
+    );
+    const secondTokenConfig = await checkDeposit(
+      secondTokenValue,
+      secondTokenAddress,
+      ethAddress,
+      props.userAddress,
+      isEthTokenSec
+    );
+
+    setFirstTokenConfig(firstTokenConfig)
+    setSecondTokenConfig(secondTokenConfig)
+
+    const checkTokenTopup = firstTokenConfig.check && secondTokenConfig.check;
+    const topupValue = firstTokenConfig.topup + secondTokenConfig.topup;
+    const checkEthTopup = await checkEthForTopUp(topupValue, props.userAddress)
+    if(!checkTokenTopup){
+      if(checkEthTopup)
+      setNote(`Note: Topup with Fiat onRamp for this much ${topupValue} Eth`);
+      else
+      setNote(`Note: Topup your reserve tokens`);
+    }
+
+
+    console.log(firstTokenConfig);
+    console.log(secondTokenConfig);
+
     if (loading) {
       setLoading(false);
     }
@@ -111,7 +182,7 @@ function PoolLiquidityWidget(props) {
                     <span>
                       Balance:{" "}
                       <label>
-                        5{" "}
+                        {firstTokenBalance}{" "}
                         {
                           props.receiptConfig.smartTokenDetails.token
                             .connectorTokens[0].info.symbol
@@ -144,7 +215,7 @@ function PoolLiquidityWidget(props) {
                     <span>
                       Balance:{" "}
                       <label>
-                        5{" "}
+                      {secondTokenBalance}{" "}
                         {
                           props.receiptConfig.smartTokenDetails.token
                             .connectorTokens[1].info.symbol
@@ -167,7 +238,7 @@ function PoolLiquidityWidget(props) {
                 </div>
               </div>
               <div className="note">
-                Note: You don't have enough token balance to add liquidity
+               {note}
               </div>
               <div className="buy-container">
                 <button type="button" className="buy-button" disabled>

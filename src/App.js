@@ -211,6 +211,7 @@ class App extends React.Component {
           <ReceiptWidget
             userAddress={this.state.address}
             receiptConfig={this.state.receiptConfig}
+            allPoolTokens={this.state.allPoolTokens}
             changePage={this.changePage}
           />
         ) : null}
