@@ -84,6 +84,11 @@
   border: 0;
   padding: 5px 10px;
   font-size: 1.3rem;
+  border-radius: 4px;
   outline: none;
   cursor: pointer;
+
+  &:hover {
+    background: #c7c7c782;
+  }
 }
