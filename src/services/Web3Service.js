@@ -6,7 +6,6 @@ import BANCOR_CONVERTER_REGISTRY_ABI from "../contracts/BancorConverterRegistry.
 import BANCOR_CONVERTER_ABI from "../contracts/BancorConverter.json";
 import BANCOR_FORMULA_ABI from "../contracts/BancorFormula.json";
 import BANCOR_NETWORK_ABI from "../contracts/BancorNetwork.json";
-import BANCOR_NETWORK_PATH_FINDER_ABI from "../contracts/BancorNetworkPathFinder.json";
 import CONTRACT_REGISTRY_ABI from "../contracts/ContractRegistry.json";
 import SMART_TOKEN_ABI from "../contracts/SmartToken.json";
 import ERC20_TOKEN_ABI from "../contracts/ERC20Token.json";
@@ -228,46 +227,6 @@ export const getLiquidityDepth = async (
   console.log(liquidityDepth);
 };
 
-export const calculateFundCostRate = async (
-  pSmartTokenAddress,
-  pReserveToken,
-  pSmartTokenOwnerAddress,
-  pAmount
-) => {
-  const BANCOR_FORMULA_ADDRESS = await getContractAddress("BancorFormula");
-  const smartTokenContract = new web3.eth.Contract(
-    SMART_TOKEN_ABI,
-    pSmartTokenAddress
-  );
-  const smartTokenSupply = await smartTokenContract.methods
-    .totalSupply()
-    .call();
-  const reserveBalance = await getReserveBalance(
-    pReserveToken,
-    pSmartTokenOwnerAddress
-  );
-
-  const bancorFormulaContract = new web3.eth.Contract(
-    BANCOR_FORMULA_ABI,
-    BANCOR_FORMULA_ADDRESS
-  );
-  const tokenAmount = web3.utils.toWei(pAmount + "");
-  const reserveRate = await bancorFormulaContract.methods
-    .calculateFundCost(smartTokenSupply, reserveBalance, "1000000", tokenAmount)
-    .call();
-  const erc20TokenContract = new web3.eth.Contract(
-    ERC20_TOKEN_ABI,
-    pReserveToken
-  );
-  const reserveTokenDecimals = await erc20TokenContract.methods
-    .decimals()
-    .call();
-  const reserveRateParsed = new BigNumber(reserveRate).dividedBy(
-    new BigNumber(Math.pow(10, Number.parseInt(reserveTokenDecimals)))
-  );
-  return 1 / Number.parseFloat(reserveRateParsed.toString());
-};
-
 export const calculateFundCost = async (
   pSmartTokenAddress,
   pReserveToken,
@@ -315,18 +274,18 @@ export const addLiquidity = async (
   pResTokensDetail,
   userAddress
 ) => {
-  await Promise.all(
-    pResTokensDetail.map(resToken => {
-      const erc20TokenContract = new web3.eth.Contract(
-        ERC20_TOKEN_ABI,
-        resToken.address
-      );
-      const tokenAmount = web3.utils.toWei("0");
-      return erc20TokenContract.methods
-        .approve(pOwnerAddress, tokenAmount)
-        .send({ from: userAddress });
-    })
-  );
+  // await Promise.all(
+  //   pResTokensDetail.map(resToken => {
+  //     const erc20TokenContract = new web3.eth.Contract(
+  //       ERC20_TOKEN_ABI,
+  //       resToken.address
+  //     );
+  //     const tokenAmount = web3.utils.toWei("0");
+  //     return erc20TokenContract.methods
+  //       .approve(pOwnerAddress, tokenAmount)
+  //       .send({ from: userAddress });
+  //   })
+  // );
   await Promise.all(
     pResTokensDetail.map(async resToken => {
       const erc20TokenContract = new web3.eth.Contract(
@@ -356,41 +315,10 @@ export const addLiquidity = async (
 };
 
 export const withdrawLiquidity = async (
-  pSmartTokenAddress,
   pAmount,
   pOwnerAddress,
-  pResTokensDetail,
   userAddress
 ) => {
-  await Promise.all(
-    pResTokensDetail.map(resToken => {
-      const erc20TokenContract = new web3.eth.Contract(
-        ERC20_TOKEN_ABI,
-        resToken.address
-      );
-      const tokenAmount = web3.utils.toWei("0");
-      return erc20TokenContract.methods
-        .approve(pOwnerAddress, tokenAmount)
-        .send({ from: userAddress });
-    })
-  );
-  await Promise.all(
-    pResTokensDetail.map(async resToken => {
-      const erc20TokenContract = new web3.eth.Contract(
-        ERC20_TOKEN_ABI,
-        resToken.address
-      );
-      const tokenAmount = await calculateFundCost(
-        pSmartTokenAddress,
-        resToken.address,
-        pOwnerAddress,
-        pAmount
-      );
-      return erc20TokenContract.methods
-        .approve(pOwnerAddress, tokenAmount)
-        .send({ from: userAddress });
-    })
-  );
 
   const bancorConverterContract = new web3.eth.Contract(
     BANCOR_CONVERTER_ABI,
@@ -448,18 +376,6 @@ export const swapTokens = async (
   } catch (error) {
     console.log(error);
   }
-
-  // const BANCOR_NETWORK_PATH_FINDER_ADDRESS = await getContractAddress(
-  //   "BancorNetworkPathFinder"
-  // );
-  // const bancorNetworkPathFinderContract = new web3.eth.Contract(
-  //   BANCOR_NETWORK_PATH_FINDER_ABI,
-  //   BANCOR_NETWORK_PATH_FINDER_ADDRESS
-  // );
-  // const path = await bancorNetworkPathFinderContract.methods
-  //   .generatePath(pTransferAddress, pReceiveAddress)
-  //   .call();
-
   const from = "0x75e4DD0587663Fce5B2D9aF7fbED3AC54342d3dB";
   console.log(path);
   if (pIsEth) {
@@ -519,6 +435,7 @@ export const checkDeposit = async (
   // check = amount < balance;
 
   diff = amount - balance;
+  console.log(typeof amount, typeof diff);
   check = !(diff > 0);
   if (!check) {
     if (!pIsEth) {
@@ -537,4 +454,15 @@ export const checkEthForTopUp = async (amount, pUserAddress) => {
   balance = Number.parseFloat(web3.utils.fromWei(balance));
   const check = amount >= balance;
   return check;
+};
+
+export const convertTokenDecimals = async (pTokenAddress, pAmount) => {
+  const erc20TokenContract = await contractERC20(pTokenAddress);
+  const reserveTokenDecimals = await erc20TokenContract.methods
+    .decimals()
+    .call();
+  const reserveAmountParsed = new BigNumber(pAmount).dividedBy(
+    new BigNumber(Math.pow(10, Number.parseInt(reserveTokenDecimals)))
+  );
+  return Number.parseFloat(reserveAmountParsed.toString());
 };
