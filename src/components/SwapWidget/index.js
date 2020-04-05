@@ -119,16 +119,50 @@ function SwapWidget(props) {
     toggleSecondTokens(false);
   };
 
-  const swapResTokens = () => {
-    const isEth = selectedFirstToken.info.symbol.toLowerCase() === "eth";
-    console.log("Entered");
-    swapTokens(
-      token1Amount,
-      selectedFirstToken.address,
-      selectedSecondToken.address,
-      isEth,
-      props.userAddress
-    );
+  const swapResTokens = async () => {
+    let isErr = false;
+    try {
+      props.setModalConfig({
+        status: "pending",
+        title: "Transaction Started",
+        message: "Please confirm your transaction to proceed."
+      });
+      props.setOpenModal(true);
+      const isEth = selectedFirstToken.info.symbol.toLowerCase() === "eth";
+      await swapTokens(
+        token1Amount,
+        selectedFirstToken.address,
+        selectedSecondToken.address,
+        isEth,
+        props.userAddress
+      );
+    } catch (err) {
+      isErr = true;
+      props.setModalConfig({
+        status: "fail",
+        title: "Transaction Failed",
+        message: err.message
+      });
+      props.setOpenModal(true);
+      setTimeout(() => {
+        props.setOpenModal(false);
+      }, 5000);
+      console.log(err);
+    }
+    if (!isErr) {
+      props.setModalConfig({
+        status: "success",
+        title: "Transaction Success",
+        message:
+          "Your transaction is successfully completed. Please check you account to see your token balance."
+      });
+      props.setOpenModal(true);
+      setTimeout(async () => {
+        props.setOpenModal(false);
+        setToken1Amount();
+        setToken2Amount();
+      }, 5000);
+    }
   };
 
   return (

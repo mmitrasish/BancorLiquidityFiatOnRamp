@@ -54,6 +54,13 @@
       border-radius: 8px;
       box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.160784);
 
+      .comming-soon {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--themeColor);
+      }
+
       .on-ramp-options-header {
         text-align: center;
         font-weight: 600;
@@ -105,86 +112,156 @@
       }
     }
 
-    .deposit-summary-container {
+    .summary-container {
       margin: 18px 0px;
       position: relative;
 
-      .deposit-summary-title {
+      .summary-title {
         font-weight: 500;
       }
 
-      .deposit-summary-title::before {
-        content: "";
-        width: 70%;
-        height: 1px;
-        background: var(--bodyBg);
-        top: 11px;
-        left: 30%;
-        position: absolute;
-      }
-
-      .deposit-summary {
-        display: flex;
-        justify-content: space-around;
-        margin: 12px 0px;
-        align-items: center;
-
-        .plus-icon {
-          // margin-bottom: 18px;
+      .add-summary-container {
+        .deposit-summary-title::before {
+          content: "";
+          width: 70%;
+          height: 1px;
+          background: var(--bodyBg);
+          top: 11px;
+          left: 30%;
+          position: absolute;
         }
 
-        .de-active {
-          border: 1px solid #db3445 !important;
-        }
+        .deposit-summary {
+          display: flex;
+          justify-content: space-around;
+          margin: 12px 0px;
+          align-items: center;
 
-        .token-container {
-          text-align: center;
-          padding: 10px 14px;
-          border: 1px solid #27a744;
-          border-radius: 8px;
-
-          .token-logo {
-            height: 30px;
-            width: 30px;
+          .plus-icon {
+            // margin-bottom: 18px;
           }
 
-          label {
-            font-size: 14px;
-            font-weight: 600;
+          .de-active {
+            border: 1px solid #db3445 !important;
           }
 
-          .user-balance {
-            font-size: 13px;
+          .token-container {
+            text-align: center;
+            padding: 10px 14px;
+            border: 1px solid #27a744;
+            border-radius: 8px;
+
+            .token-logo {
+              height: 30px;
+              width: 30px;
+            }
 
             label {
+              font-size: 14px;
+              font-weight: 600;
+            }
+
+            .user-balance {
               font-size: 13px;
-              font-weight: 500;
+
+              label {
+                font-size: 13px;
+                font-weight: 500;
+              }
+            }
+          }
+        }
+
+        .receive-summary {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 18px 0px 8px 0px;
+
+          .receive-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 500;
+          }
+          .receive-amount {
+            font-weight: 600;
+            text-transform: uppercase;
+          }
+        }
+
+        .note {
+          color: #db3445;
+          font-size: 13px;
+          font-weight: 500;
+        }
+      }
+
+      .withdraw-summary-container {
+        .deposit-summary {
+          .deposit-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 500;
+          }
+          .deposit-summary {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0px;
+            align-items: center;
+
+            .de-active {
+              border: 1px solid #db3445 !important;
+            }
+
+            .token-container {
+              text-align: center;
+              padding: 10px 14px;
+              border: 1px solid #27a744;
+              border-radius: 8px;
+
+              .token-logo {
+                height: 30px;
+                width: 30px;
+              }
+
+              label {
+                font-size: 14px;
+                font-weight: 600;
+              }
+            }
+          }
+        }
+
+        .receive-summary-container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 18px 0px 8px 0px;
+
+          .receive-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 500;
+          }
+          .res-amount {
+            display: flex;
+            align-items: baseline;
+            .full-summary-tilda {
+              margin-right: 8px;
+            }
+
+            .full-summary-item {
+              text-align: right;
+              label {
+                font-weight: 600;
+              }
             }
           }
         }
       }
 
-      .receive-summary {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 18px 0px 8px 0px;
-
-        .receive-title {
-          font-size: 14px;
-          text-transform: uppercase;
-          font-weight: 500;
-        }
-        .receive-amount {
-          font-weight: 600;
-          text-transform: uppercase;
-        }
-      }
-
-      .note {
-        color: #db3445;
-        font-size: 13px;
-        font-weight: 500;
+      .withdraw-buy {
+        margin-top: 4em !important;
       }
 
       .buy-container {

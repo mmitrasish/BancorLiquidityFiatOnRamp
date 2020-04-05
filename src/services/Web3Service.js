@@ -274,18 +274,18 @@ export const addLiquidity = async (
   pResTokensDetail,
   userAddress
 ) => {
-  // await Promise.all(
-  //   pResTokensDetail.map(resToken => {
-  //     const erc20TokenContract = new web3.eth.Contract(
-  //       ERC20_TOKEN_ABI,
-  //       resToken.address
-  //     );
-  //     const tokenAmount = web3.utils.toWei("0");
-  //     return erc20TokenContract.methods
-  //       .approve(pOwnerAddress, tokenAmount)
-  //       .send({ from: userAddress });
-  //   })
-  // );
+  await Promise.all(
+    pResTokensDetail.map(resToken => {
+      const erc20TokenContract = new web3.eth.Contract(
+        ERC20_TOKEN_ABI,
+        resToken.address
+      );
+      const tokenAmount = web3.utils.toWei("0");
+      return erc20TokenContract.methods
+        .approve(pOwnerAddress, tokenAmount)
+        .send({ from: userAddress });
+    })
+  );
   await Promise.all(
     pResTokensDetail.map(async resToken => {
       const erc20TokenContract = new web3.eth.Contract(
@@ -311,6 +311,7 @@ export const addLiquidity = async (
   const fund = await bancorConverterContract.methods
     .fund(fundAmount)
     .send({ from: userAddress });
+  return fund;
   // console.log(fund);
 };
 
@@ -319,17 +320,17 @@ export const withdrawLiquidity = async (
   pOwnerAddress,
   userAddress
 ) => {
-
   const bancorConverterContract = new web3.eth.Contract(
     BANCOR_CONVERTER_ABI,
     pOwnerAddress
   );
   const liquidateAmount = web3.utils.toWei(pAmount + "");
 
-  await bancorConverterContract.methods
+  const liquidity = await bancorConverterContract.methods
     .liquidate(liquidateAmount)
     .send({ from: userAddress });
   // console.log(fund);
+  return liquidity;
 };
 
 export const contractERC20 = async address => {
@@ -443,7 +444,7 @@ export const checkDeposit = async (
       rate = Number.parseFloat(rate);
       topup = rate * diff;
     }
-    topup = Number.parseFloat(web3.utils.fromWei(topup + "")) + 0.1;
+    topup = Number.parseFloat(web3.utils.fromWei(topup + "")) * 1.1;
   }
   return { check, topup, diff };
 };
@@ -452,8 +453,16 @@ export const checkDeposit = async (
 export const checkEthForTopUp = async (amount, pUserAddress) => {
   let balance = await web3.eth.getBalance(pUserAddress);
   balance = Number.parseFloat(web3.utils.fromWei(balance));
+  console.log(amount, balance);
   const check = amount >= balance;
   return check;
+};
+
+export const getRemainingEthAmount = async (amount, pUserAddress) => {
+  let balance = await web3.eth.getBalance(pUserAddress);
+  balance = Number.parseFloat(web3.utils.fromWei(balance));
+  const remAmt = amount - balance;
+  return remAmt;
 };
 
 export const convertTokenDecimals = async (pTokenAddress, pAmount) => {

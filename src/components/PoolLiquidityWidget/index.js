@@ -51,22 +51,58 @@ function PoolLiquidityWidget(props) {
   };
 
   React.useEffect(() => {
-    getRate();
-    getReserveTokenBalances();
-    getFirstTokensList();
-    getSecondTokensList();
+    const abortController = new AbortController();
+    const { signal } = abortController;
+    try {
+      getRate();
+      getReserveTokenBalances();
+      getFirstTokensList();
+      getSecondTokensList();
+    } catch (e) {
+      if (!signal?.aborted) {
+        console.error(e);
+      }
+    }
+
+    return () => {
+      abortController.abort();
+    };
   }, [props.config.token]);
 
   React.useEffect(() => {
-    // setParentToken()
-    getRate();
-    getReserveTokenBalances();
+    const abortController = new AbortController();
+    const { signal } = abortController;
+    try {
+      // setParentToken()
+      getRate();
+      getReserveTokenBalances();
+    } catch (e) {
+      if (!signal?.aborted) {
+        console.error(e);
+      }
+    }
+
+    return () => {
+      abortController.abort();
+    };
   }, [selectedFirstToken]);
 
   React.useEffect(() => {
-    // setParentToken()
-    getRate();
-    getReserveTokenBalances();
+    const abortController = new AbortController();
+    const { signal } = abortController;
+    try {
+      // setParentToken()
+      getRate();
+      getReserveTokenBalances();
+    } catch (e) {
+      if (!signal?.aborted) {
+        console.error(e);
+      }
+    }
+
+    return () => {
+      abortController.abort();
+    };
   }, [selectedSecondToken]);
 
   const getRate = async () => {

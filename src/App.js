@@ -229,6 +229,8 @@ class App extends React.Component {
           <SwapWidget
             userAddress={this.state.address}
             allPoolTokens={this.state.allPoolTokens}
+            setModalConfig={this.setModalConfig}
+            setOpenModal={this.setOpenModal}
           />
         ) : null}
         {this.state.page === "receipt" ? (
@@ -238,6 +240,8 @@ class App extends React.Component {
             allPoolTokens={this.state.allPoolTokens}
             changePage={this.changePage}
             setMoonpayAmount={this.setMoonpayAmount}
+            setModalConfig={this.setModalConfig}
+            setOpenModal={this.setOpenModal}
           />
         ) : null}
         {this.state.page === "moonpay" ? (

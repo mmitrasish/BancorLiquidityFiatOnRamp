@@ -11,21 +11,21 @@ function Modal(props) {
   return (
     <div>
       <div
-        class={`modal-overlay ${!props.openModal ? "closed" : null}`}
+        className={`modal-overlay ${!props.openModal ? "closed" : null}`}
         id="modal-overlay"
         onClick={e => props.setOpenModal(false)}
       ></div>
 
-      <div class={`modal ${!props.openModal ? "closed" : null}`} id="modal">
+      <div className={`modal ${!props.openModal ? "closed" : null}`} id="modal">
         <button
-          class="close-button"
+          className="close-button"
           id="close-button"
           onClick={e => props.setOpenModal(false)}
         >
           <FontAwesomeIcon icon={faTimes} />
         </button>
-        <div class="modal-guts">
-          <div class="modal-loader">
+        <div className="modal-guts">
+          <div className="modal-loader">
             {props.config.status === "pending" ? (
               <Loader loaderType="circle" />
             ) : null}
@@ -43,7 +43,13 @@ function Modal(props) {
               </div>
             ) : null}
           </div>
-          <div className="modal-title success">{props.config.title}</div>
+          <div
+            className={`modal-title ${
+              props.config.status === "fail" ? "fail" : "success"
+            }`}
+          >
+            {props.config.title}
+          </div>
           <div className="modal-message">{props.config.message}</div>
         </div>
       </div>
