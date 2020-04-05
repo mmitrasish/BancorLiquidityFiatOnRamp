@@ -436,19 +436,34 @@ export const checkDeposit = async (
   // check = amount < balance;
 
   diff = amount - balance;
-  console.log(typeof amount, typeof diff);
+  console.log(amount, balance, diff);
   check = !(diff > 0);
   if (!check) {
     if (!pIsEth) {
       let rate = await getTokenRate(pTokenAddress, pWethAddress);
       rate = Number.parseFloat(rate);
-      topup = rate * diff;
+      topup = Math.ceil(rate * diff * 1.1);                  // 10% increament for safe transaction.
     }
-    topup = Number.parseFloat(web3.utils.fromWei(topup + "")) * 1.1;
+    topup = Number.parseFloat(web3.utils.fromWei(topup + ""));
   }
   return { check, topup, diff };
 };
 
+export const checkWithdraw = async (
+  amount,
+  pTokenAddress,
+  pUserAddress,
+) => {
+  let check;
+  let diff;
+  const balance = await getUserBalance(pTokenAddress, pUserAddress);
+  // check = amount < balance;
+
+  diff = amount - balance;
+  console.log(amount, balance, diff);
+  check = !(diff > 0);
+  return {check};
+};
 // To check if eth is enough.
 export const checkEthForTopUp = async (amount, pUserAddress) => {
   let balance = await web3.eth.getBalance(pUserAddress);

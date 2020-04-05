@@ -10,6 +10,7 @@ import {
   calculateFundCost,
   getAmountInEth,
   checkDeposit,
+  checkWithdraw,
   getUserBalance,
   checkEthForTopUp,
   swapTokens,
@@ -91,20 +92,25 @@ function PoolLiquidityWidget(props) {
           }
         });
       });
-      let samrtTokenUserBalance = await getUserBalance(
+      let smartTokenUserBalance = await getUserBalance(
         props.receiptConfig.smartTokenDetails.token.smartTokenAddress,
         props.userAddress,
         false
       );
-      samrtTokenUserBalance = getAmountInEth(samrtTokenUserBalance);
-      setSmartTokenBalance(samrtTokenUserBalance);
-      const smartTokenUserConfig = await checkDeposit(
-        props.receiptConfig.smartTokenDetails.amount,
+      console.log(smartTokenUserBalance);
+      smartTokenUserBalance = getAmountInEth(smartTokenUserBalance);
+      setSmartTokenBalance(smartTokenUserBalance);
+      const amount = props.receiptConfig.smartTokenDetails.amount * Math.pow(10,18);
+      const smartTokenUserConfig = await checkWithdraw(
+        amount,
         props.receiptConfig.smartTokenDetails.token.smartTokenAddress,
-        ethAddress,
         props.userAddress,
-        false
       );
+      console.log(smartTokenUserConfig.check)
+      if(!smartTokenUserConfig.check){
+        setLiquidityDisabled(true);
+        setNote(`You don't have enough Smart Token`);
+      }
       console.log(smartTokenUserConfig);
       setSmartTokenConfig(smartTokenUserConfig);
       setButton("Withdraw Liquidity");
@@ -325,18 +331,6 @@ function PoolLiquidityWidget(props) {
           props.userAddress
         );
       }
-      if (!isErr) {
-        props.setModalConfig({
-          status: "success",
-          title: "Transaction Success",
-          message:
-            "Your transaction is successfully completed. Please check you account to see your token balance."
-        });
-        props.setOpenModal(true);
-        setTimeout(async () => {
-          props.setOpenModal(false);
-        }, 5000);
-      }
     } catch (err) {
       isErr = true;
       props.setModalConfig({
@@ -350,9 +344,23 @@ function PoolLiquidityWidget(props) {
       }, 5000);
       console.log(err);
     }
+    if (!isErr) {
+      props.setModalConfig({
+        status: "success",
+        title: "Transaction Success",
+        message:
+          "Your transaction is successfully completed. Please check you account to see your token balance."
+      });
+      props.setOpenModal(true);
+      setTimeout(async () => {
+        props.setOpenModal(false);
+        history.push("/pools");
+      }, 5000);
+    }
   };
 
   const liquidityAction = async () => {
+
     if (!liquidityDisabled) {
       props.setModalConfig({
         status: "pending",
@@ -360,17 +368,23 @@ function PoolLiquidityWidget(props) {
         message: "Please confirm your transaction to proceed."
       });
       props.setOpenModal(true);
-      const checkTokenTopup = firstTokenConfig.check && secondTokenConfig.check;
-      const topupValue = firstTokenConfig.topup + secondTokenConfig.topup;
-      const checkEthTopup = await checkEthForTopUp(
-        topupValue,
-        props.userAddress
-      );
-      if (!checkTokenTopup) {
-        if (!checkEthTopup) {
-          topupReserveTokenAmount();
+      
+      if((props.receiptConfig.type.toLowerCase() === "add")){
+        const checkTokenTopup = firstTokenConfig.check && secondTokenConfig.check;
+        const topupValue = firstTokenConfig.topup + secondTokenConfig.topup;
+        const checkEthTopup = await checkEthForTopUp(
+          topupValue,
+          props.userAddress
+        );
+        if (!checkTokenTopup) {
+          if (!checkEthTopup) {
+            topupReserveTokenAmount();
+          }
+        } else {
+          liquidityCall();
         }
-      } else {
+      }
+      else{
         liquidityCall();
       }
     }
@@ -560,7 +574,7 @@ function PoolLiquidityWidget(props) {
                           <span>
                             Balance:{" "}
                             <label>
-                              {Number.parseFloat(secondTokenBalance).toFixed(3)}{" "}
+                              {Number.parseFloat(smartTokenBalance).toFixed(3)}{" "}
                               {
                                 props.receiptConfig.smartTokenDetails.token
                                   .symbol
@@ -593,6 +607,7 @@ function PoolLiquidityWidget(props) {
                       </div>
                     </div>
                   </div>
+                  <div className="note">{note}</div>
                   <div
                     className={`buy-container ${
                       props.receiptConfig.type !== "Add" ? "withdraw-buy" : null
@@ -601,6 +616,7 @@ function PoolLiquidityWidget(props) {
                     <button
                       type="button"
                       className="buy-button"
+                      disabled={liquidityDisabled}
                       onClick={e => liquidityAction()}
                     >
                       {button}
