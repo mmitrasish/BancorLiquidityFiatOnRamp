@@ -396,7 +396,7 @@ function PoolLiquidityWidget(props) {
         <div className="widget-header">
           <div
             className="back-button-container"
-            onClick={e => props.changePage("liquidity")}
+            onClick={e => history.push("/liquidity")}
           >
             <img
               src={require("../../assets/icons/back.svg")}

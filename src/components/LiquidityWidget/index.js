@@ -145,7 +145,7 @@ function LiquidityWidget(props) {
           <div className="widget-header">
             <div
               className="back-button-container"
-              onClick={e => props.changePage("home")}
+              onClick={e => history.push("/home")}
             >
               <img
                 src={require("../../assets/icons/back.svg")}

@@ -4,5 +4,29 @@
   .moonpay-container {
     outline: none;
     height: calc(100vh - 88px);
+    position: relative;
+
+    .back-button-container {
+      position: absolute;
+      padding: 4px;
+      border-radius: 8px;
+      display: flex;
+      margin-right: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      top: 20%;
+      left: 36%;
+
+      .back-button {
+        height: 20px;
+        width: 20px;
+        margin-right: 12px;
+      }
+
+      span {
+        font-weight: 600;
+      }
+    }
   }
 }
