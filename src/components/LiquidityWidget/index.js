@@ -4,11 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
   faTimes,
-  faChevronRight
+  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { calculateFundCost, getAmountInEth } from "../../services/Web3Service";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
+import TokenList from "../TokenList";
 
 function LiquidityWidget(props) {
   let history = useHistory();
@@ -25,7 +26,7 @@ function LiquidityWidget(props) {
   const [firTokenAmount, setFirTokenAmount] = React.useState(0);
   const [secTokenAmount, setSecTokenAmount] = React.useState(0);
 
-  const getTokenIcon = tokenAddress => {
+  const getTokenIcon = (tokenAddress) => {
     try {
       return require(`../../assets/tokens/${tokenAddress}/logo.png`);
     } catch (error) {
@@ -37,29 +38,29 @@ function LiquidityWidget(props) {
     getReserveTokenAmt();
   }, []);
 
-  const toggleSmartTokensList = pFlag => {
+  const toggleSmartTokensList = (pFlag) => {
     setOpenSmartTokensList(pFlag);
   };
 
   const sendToReceipt = () => {
     const liquidityWidgetConfig = {
       type: tab,
-      token: selectedSmartToken
+      token: selectedSmartToken,
     };
     props.setLiquidityPageConfig(liquidityWidgetConfig);
     const receiptConfig = {
       type: tab,
       smartTokenDetails: {
         token: selectedSmartToken,
-        amount: Number.parseFloat(smartTokenAmount)
-      }
+        amount: Number.parseFloat(smartTokenAmount),
+      },
     };
     props.setReceiptConfig(receiptConfig);
     history.push("/receipt");
     // props.changePage("receipt");
   };
 
-  const selectSmartToken = pToken => {
+  const selectSmartToken = (pToken) => {
     setSelectedSmartToken(pToken);
     getReserveTokenAmt();
     setSmartTokenAmount(0);
@@ -90,7 +91,7 @@ function LiquidityWidget(props) {
     setLoading(false);
   };
 
-  const changeSmartTokenAmount = async pValue => {
+  const changeSmartTokenAmount = async (pValue) => {
     setSmartTokenAmount(pValue);
     const firstTokenAmount = Number.parseFloat(pValue) * firTokenRate;
     setFirTokenAmount(firstTokenAmount);
@@ -101,51 +102,20 @@ function LiquidityWidget(props) {
   return (
     <div className="liquidity-widget">
       {openSmartTokensList ? (
-        <div
-          className={`widget-select-token-container ${
-            openSmartTokensList ? "selected" : "dismiss"
-          }`}
-        >
-          <div className="widget-header">
-            <h3 className="widget-header-title">Select Token</h3>
-            <div
-              className="select-token-close"
-              onClick={e => toggleSmartTokensList(false)}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </div>
-          </div>
-          <div className="tokens-list-container">
-            {props.allPoolTokens.map((token, i) => (
-              <div
-                className="token-item-container"
-                key={i}
-                onClick={e => selectSmartToken(token)}
-              >
-                <div className="token-item">
-                  <div className="tokens-icon-container">
-                    <img
-                      src={getTokenIcon(token.address)}
-                      alt="token logo"
-                      className="token-logo"
-                    />
-                    <label>{token.symbol}</label>
-                  </div>
-                  <div className="next-icon">
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <TokenList
+          openTokensList={openSmartTokensList}
+          tokensUniqueList={props.allPoolTokens}
+          toggleTokens={toggleSmartTokensList}
+          selectToken={selectSmartToken}
+          isSmartTokensList={true}
+        />
       ) : null}
       {!openSmartTokensList ? (
         <div className="widget-main-container">
           <div className="widget-header">
             <div
               className="back-button-container"
-              onClick={e => history.push("/home")}
+              onClick={(e) => history.push("/pools")}
             >
               <img
                 src={require("../../assets/icons/back.svg")}
@@ -162,14 +132,14 @@ function LiquidityWidget(props) {
           ) : (
             <div>
               <div className="widget-tabs">
-                <div className="tab-item" onClick={e => setTab("Add")}>
+                <div className="tab-item" onClick={(e) => setTab("Add")}>
                   <div
                     className={"tab-link " + (tab === "Add" ? "active" : null)}
                   >
                     Add
                   </div>
                 </div>
-                <div className="tab-item" onClick={e => setTab("Withdraw")}>
+                <div className="tab-item" onClick={(e) => setTab("Withdraw")}>
                   <div
                     className={
                       "tab-link " + (tab === "Withdraw" ? "active" : null)
@@ -191,11 +161,11 @@ function LiquidityWidget(props) {
                     className="pay-input"
                     placeholder="0.0"
                     value={smartTokenAmount || ""}
-                    onChange={e => changeSmartTokenAmount(e.target.value)}
+                    onChange={(e) => changeSmartTokenAmount(e.target.value)}
                   />
                   <div
                     className="pay-currency-container"
-                    onClick={e => toggleSmartTokensList(true)}
+                    onClick={(e) => toggleSmartTokensList(true)}
                   >
                     <div className="pay-currency">
                       <img
@@ -215,7 +185,9 @@ function LiquidityWidget(props) {
                 <div className="summary-container">
                   <label className="summary-title">Summary</label>
                   <div className="summary-item">
-                    <div className="full-summary-title">You {tab === "Add"? "Deposit" : "Withdraw"}</div>
+                    <div className="full-summary-title">
+                      You {tab === "Add" ? "Deposit" : "Withdraw"}
+                    </div>
                     <div className="summary-total-amount">
                       {resAmountLoading ? (
                         <Loader loaderType="circle" />
@@ -243,7 +215,9 @@ function LiquidityWidget(props) {
                     </div>
                   </div>
                   <div className="summary-item">
-                    <div className="full-summary-title">You {tab === "Add"? "Withdraw" : "Deposit"}</div>
+                    <div className="full-summary-title">
+                      You {tab === "Add" ? "Withdraw" : "Deposit"}
+                    </div>
                     <div className="summary-total-amount">
                       <div className="res-amount">
                         <div className="full-summary-item">
@@ -261,7 +235,7 @@ function LiquidityWidget(props) {
                 <button
                   type="button"
                   className="buy-button"
-                  onClick={e => sendToReceipt()}
+                  onClick={(e) => sendToReceipt()}
                 >
                   {tab} Liquidity
                 </button>

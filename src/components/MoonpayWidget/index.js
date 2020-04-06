@@ -13,11 +13,11 @@ function MoonpayWidget(props) {
   }, []);
   const getBaseAmount = async () => {
     const ethRate = await getEthExchangeRate();
-    console.log(ethRate);
+    // console.log(ethRate);
     const ethGBPRate = ethRate["GBP"];
-    console.log(ethGBPRate, props.ethAmount);
+    // console.log(ethGBPRate, props.ethAmount);
     const gbpAmount = Number.parseFloat(props.ethAmount) * ethGBPRate;
-    console.log(gbpAmount);
+    // console.log(gbpAmount);
     setBaseAmount(gbpAmount);
     if (loading) {
       setLoading(false);
@@ -31,7 +31,7 @@ function MoonpayWidget(props) {
         <div className="moonpay-container" tabIndex="-1" role="group">
           <div
             className="back-button-container"
-            onClick={e => history.push("/receipt")}
+            onClick={(e) => history.push("/receipt")}
           >
             <img
               src={require("../../assets/icons/back.svg")}

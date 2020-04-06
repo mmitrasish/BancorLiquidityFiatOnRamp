@@ -9,7 +9,7 @@ import {
   getErc20TokensInfo,
   getSmartTokensSymbol,
   getAccount,
-  getConversionFees
+  getConversionFees,
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
 import SwapWidget from "./components/SwapWidget";
@@ -35,48 +35,48 @@ class App extends React.Component {
       modalConfig: {
         status: "pending",
         title: "Pending",
-        message: "Working"
-      }
+        message: "Working",
+      },
     };
   }
 
-  changeAddress = address => {
+  changeAddress = (address) => {
     this.setState({ address });
   };
 
-  changePage = page => {
+  changePage = (page) => {
     this.setState({ page });
   };
 
-  setOpenModal = pFlag => {
+  setOpenModal = (pFlag) => {
     this.setState({ openModal: pFlag });
   };
 
-  setModalConfig = pConfig => {
+  setModalConfig = (pConfig) => {
     this.setState({ modalConfig: pConfig });
   };
 
-  setMoonpayAmount = amount => {
+  setMoonpayAmount = (amount) => {
     this.setState({ moonpayAmount: amount });
   };
 
-  addLiquidityPageConfig = config => {
+  addLiquidityPageConfig = (config) => {
     this.setState({ liquidityPageConfig: config });
   };
 
-  addReceiptConfig = config => {
+  addReceiptConfig = (config) => {
     this.setState({ receiptConfig: config });
   };
 
   checkEthereumChange = () => {
     if (window.ethereum) {
-      window.ethereum.on("accountsChanged", accounts => {
+      window.ethereum.on("accountsChanged", (accounts) => {
         if (this.state.address !== undefined) {
           this.setState({ address: accounts[0] });
         }
       });
 
-      window.ethereum.on("networkChanged", async changedChainId => {
+      window.ethereum.on("networkChanged", async (changedChainId) => {
         if (
           this.state.address &&
           Number.parseInt(changedChainId) !==
@@ -104,7 +104,7 @@ class App extends React.Component {
   routeAction = () => {
     this.props.history.listen((location, action) => {
       const page = location.pathname.split("/");
-      console.log(page[page.length - 1]);
+      // console.log(page[page.length - 1]);
       this.setState({ page: page[page.length - 1] });
     });
     this.props.history.push("/pools");
@@ -121,7 +121,7 @@ class App extends React.Component {
     this.getAllPoolItems();
   };
 
-  getAllPoolItems = async pValue => {
+  getAllPoolItems = async (pValue) => {
     this.setState({ allPoolTokens: [], filteredPoolTokens: [] });
     const allTokens = await getAllBancorLiquidityPoolTokens();
     let allTokenDetails = await Promise.all(
@@ -146,7 +146,7 @@ class App extends React.Component {
               const tokenInfo = await getErc20TokensInfo(tokenAddress);
               connectorTokens.push({
                 address: tokenAddress,
-                info: tokenInfo
+                info: tokenInfo,
               });
             }
             tokenDetail.connectorTokens = connectorTokens;
@@ -157,18 +157,21 @@ class App extends React.Component {
       })
     );
     allTokenDetails = allTokenDetails.filter(
-      token => Number.parseInt(token.connectorTokenCount) === 2
+      (token) => Number.parseInt(token.connectorTokenCount) === 2
     );
+    allTokenDetails = allTokenDetails.sort((a, b) => {
+      return a.symbol.toLowerCase().localeCompare(b.symbol.toLowerCase());
+    });
     // console.log(allTokenDetails.length);
     this.setState({
       allPoolTokens: allTokenDetails,
-      filteredPoolTokens: allTokenDetails
+      filteredPoolTokens: allTokenDetails,
     });
   };
 
-  filterPoolTokens = searchTokenSymbol => {
+  filterPoolTokens = (searchTokenSymbol) => {
     const { allPoolTokens } = this.state;
-    const filteredPoolTokens = allPoolTokens.filter(token => {
+    const filteredPoolTokens = allPoolTokens.filter((token) => {
       if (
         token.symbol.toLowerCase().indexOf(searchTokenSymbol.toLowerCase()) !==
         -1

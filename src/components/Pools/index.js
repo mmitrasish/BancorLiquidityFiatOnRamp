@@ -8,7 +8,7 @@ function Pools(props) {
   let history = useHistory();
   const [loading, setLoading] = React.useState(true);
   const [searchText, setSearchText] = React.useState("");
-  const getTokenIcon = tokenAddress => {
+  const getTokenIcon = (tokenAddress) => {
     try {
       return require(`../../assets/tokens/${tokenAddress}/logo.png`);
     } catch (error) {
@@ -28,7 +28,7 @@ function Pools(props) {
     // props.changePage("liquidity");
   };
 
-  const searchTextChange = pValue => {
+  const searchTextChange = (pValue) => {
     setSearchText(pValue);
     props.filterPoolTokens(pValue);
   };
@@ -58,7 +58,7 @@ function Pools(props) {
               placeholder="Search Token"
               className="header-search-token"
               value={searchText}
-              onChange={e => searchTextChange(e.target.value)}
+              onChange={(e) => searchTextChange(e.target.value)}
             />
           </div>
           <div className="pools-table">
@@ -96,18 +96,18 @@ function Pools(props) {
                       {shortenAddress(token.ownerAddress)}
                     </div>
                     <div className="td">50 - 50</div>
-                    <div className="td">$2,922,330.26</div>
-                    <div className="td">{token.conversionFeePercent}%</div>
+                    <div className="td">??</div>
+                    <div className="td">??</div>
                     <div className="td">
                       <span
                         className="action-button withdraw-button"
-                        onClick={e => poolAction(false, token)}
+                        onClick={(e) => poolAction(false, token)}
                       >
                         <span className="action-icon">-</span>Withdraw
                       </span>
                       <span
                         className="action-button add-button"
-                        onClick={e => poolAction(true, token)}
+                        onClick={(e) => poolAction(true, token)}
                       >
                         <span className="action-icon">+</span>Add
                       </span>

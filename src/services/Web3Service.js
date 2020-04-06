@@ -21,13 +21,13 @@ const onboard = Onboard({
   dappId: appConfig.onboardId, // [String] The API key created by step one above
   networkId: appConfig.networkId, // [Integer] The Ethereum network ID your Dapp uses.
   subscriptions: {
-    wallet: wallet => {
+    wallet: (wallet) => {
       web3 = new Web3(wallet.provider);
-    }
-  }
+    },
+  },
 });
 
-export const changeNetwork = config => {
+export const changeNetwork = (config) => {
   onboard.config({ networkId: config.networkId });
   CONTRACT_REGISTRY_ADDRESS = config.contractRegistryAddress;
 };
@@ -40,7 +40,7 @@ export const getAccount = async () => {
   return currentState.address;
 };
 
-export const getContractAddress = async contractName => {
+export const getContractAddress = async (contractName) => {
   const registry = new web3.eth.Contract(
     CONTRACT_REGISTRY_ABI,
     CONTRACT_REGISTRY_ADDRESS
@@ -63,19 +63,19 @@ export const getAllBancorLiquidityPoolTokens = async () => {
   return poolTokens;
 };
 
-export const getSmartTokensOwner = async smartTokenAddress => {
+export const getSmartTokensOwner = async (smartTokenAddress) => {
   const contract = new web3.eth.Contract(SMART_TOKEN_ABI, smartTokenAddress);
   const ownerAddress = await contract.methods.owner().call();
   return ownerAddress;
 };
 
-export const getSmartTokensSymbol = async smartTokenAddress => {
+export const getSmartTokensSymbol = async (smartTokenAddress) => {
   const contract = new web3.eth.Contract(SMART_TOKEN_ABI, smartTokenAddress);
   const tokenSymbol = await contract.methods.symbol().call();
   return tokenSymbol;
 };
 
-export const getConnectorTokenCount = async tokenAddress => {
+export const getConnectorTokenCount = async (tokenAddress) => {
   if (tokenAddress) {
     const contract = new web3.eth.Contract(BANCOR_CONVERTER_ABI, tokenAddress);
     const connectorTokenCount = await contract.methods
@@ -93,7 +93,7 @@ export const getConnectorTokens = async (tokenAddress, index) => {
   }
 };
 
-export const getErc20TokensInfo = async tokenAddress => {
+export const getErc20TokensInfo = async (tokenAddress) => {
   if (tokenAddress) {
     try {
       const symbol = await getSymbol(web3, tokenAddress);
@@ -142,17 +142,17 @@ async function rpc(func) {
 export const getTokenRate = async (pSourceTokenAddr, pTargetTokenAddr) => {
   try {
     const sdk = await SDK.create({
-      ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint
+      ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint,
     });
 
     if (pSourceTokenAddr && pTargetTokenAddr) {
       const sourceToken = {
         blockchainType: "ethereum",
-        blockchainId: pSourceTokenAddr
+        blockchainId: pSourceTokenAddr,
       };
       const targetToken = {
         blockchainType: "ethereum",
-        blockchainId: pTargetTokenAddr
+        blockchainId: pTargetTokenAddr,
       };
       const rate = await sdk.getCheapestPathRate(sourceToken, targetToken, "1");
       await SDK.destroy(sdk);
@@ -165,13 +165,13 @@ export const getTokenRate = async (pSourceTokenAddr, pTargetTokenAddr) => {
   }
 };
 
-export const getConversionFees = async tokenAddress => {
+export const getConversionFees = async (tokenAddress) => {
   if (tokenAddress) {
     // console.log("Entered");
     const contract = new web3.eth.Contract(BANCOR_CONVERTER_ABI, tokenAddress);
     const conversionEvents = await contract.getPastEvents("Conversion", {
       fromBlock: 0,
-      toBlock: "latest" // You can also specify 'latest'
+      toBlock: "latest", // You can also specify 'latest'
     });
     if (conversionEvents[conversionEvents.length - 1]) {
       const conversionFee = new BigNumber(
@@ -216,7 +216,7 @@ export const getLiquidityDepth = async (
   pSmartTokenOwnerAddress
 ) => {
   const liquidityDepth = await Promise.all(
-    pReserveTokens.map(async token => {
+    pReserveTokens.map(async (token) => {
       const reserveBalance = await getReserveBalance(
         token,
         pSmartTokenOwnerAddress
@@ -224,7 +224,7 @@ export const getLiquidityDepth = async (
       return reserveBalance;
     })
   );
-  console.log(liquidityDepth);
+  // console.log(liquidityDepth);
 };
 
 export const calculateFundCost = async (
@@ -260,7 +260,7 @@ export const calculateFundCost = async (
   });
 };
 
-export const getBalances = async pTokens => {
+export const getBalances = async (pTokens) => {
   const currentState = onboard.getState();
   const walletAddress = currentState.address;
   const balances = await getAddressBalances(web3, walletAddress, pTokens);
@@ -275,7 +275,7 @@ export const addLiquidity = async (
   userAddress
 ) => {
   await Promise.all(
-    pResTokensDetail.map(resToken => {
+    pResTokensDetail.map((resToken) => {
       const erc20TokenContract = new web3.eth.Contract(
         ERC20_TOKEN_ABI,
         resToken.address
@@ -287,7 +287,7 @@ export const addLiquidity = async (
     })
   );
   await Promise.all(
-    pResTokensDetail.map(async resToken => {
+    pResTokensDetail.map(async (resToken) => {
       const erc20TokenContract = new web3.eth.Contract(
         ERC20_TOKEN_ABI,
         resToken.address
@@ -333,12 +333,12 @@ export const withdrawLiquidity = async (
   return liquidity;
 };
 
-export const contractERC20 = async address => {
+export const contractERC20 = async (address) => {
   const erc20TokenContract = new web3.eth.Contract(ERC20_TOKEN_ABI, address);
   return erc20TokenContract;
 };
 
-export const getAmountInEth = pAmount => {
+export const getAmountInEth = (pAmount) => {
   const amount = web3.utils.fromWei(pAmount + "");
   return amount;
 };
@@ -360,25 +360,25 @@ export const swapTokens = async (
 
   try {
     const sdk = await SDK.create({
-      ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint
+      ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint,
     });
 
     const sourceToken = {
       blockchainType: "ethereum",
-      blockchainId: pTransferAddress
+      blockchainId: pTransferAddress,
     };
     const targetToken = {
       blockchainType: "ethereum",
-      blockchainId: pReceiveAddress
+      blockchainId: pReceiveAddress,
     };
     path = await sdk.getCheapestPath(sourceToken, targetToken, "1");
-    path = path.map(item => item.blockchainId);
+    path = path.map((item) => item.blockchainId);
     await SDK.destroy(sdk);
   } catch (error) {
     console.log(error);
   }
   const from = "0x75e4DD0587663Fce5B2D9aF7fbED3AC54342d3dB";
-  console.log(path);
+  // console.log(path);
   if (pIsEth) {
     const swapEth = await bancorNetworkContract.methods
       .convert2(path, amount, "1", from, "10000")
@@ -436,39 +436,35 @@ export const checkDeposit = async (
   // check = amount < balance;
 
   diff = amount - balance;
-  console.log(amount, balance, diff);
+  // console.log(amount, balance, diff);
   check = !(diff > 0);
   if (!check) {
     if (!pIsEth) {
       let rate = await getTokenRate(pTokenAddress, pWethAddress);
       rate = Number.parseFloat(rate);
-      topup = Math.ceil(rate * diff * 1.1);                  // 10% increament for safe transaction.
+      topup = Math.ceil(rate * diff * 1.1); // 10% increament for safe transaction.
     }
     topup = Number.parseFloat(web3.utils.fromWei(topup + ""));
   }
   return { check, topup, diff };
 };
 
-export const checkWithdraw = async (
-  amount,
-  pTokenAddress,
-  pUserAddress,
-) => {
+export const checkWithdraw = async (amount, pTokenAddress, pUserAddress) => {
   let check;
   let diff;
   const balance = await getUserBalance(pTokenAddress, pUserAddress);
   // check = amount < balance;
 
   diff = amount - balance;
-  console.log(amount, balance, diff);
+  // console.log(amount, balance, diff);
   check = !(diff > 0);
-  return {check};
+  return { check };
 };
 // To check if eth is enough.
 export const checkEthForTopUp = async (amount, pUserAddress) => {
   let balance = await web3.eth.getBalance(pUserAddress);
   balance = Number.parseFloat(web3.utils.fromWei(balance));
-  console.log(amount, balance);
+  // console.log(amount, balance);
   const check = amount >= balance;
   return check;
 };

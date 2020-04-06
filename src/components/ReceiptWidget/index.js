@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronRight,
   faPlus,
-  faLeaf
+  faLeaf,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   calculateFundCost,
@@ -16,7 +16,7 @@ import {
   swapTokens,
   addLiquidity,
   withdrawLiquidity,
-  getRemainingEthAmount
+  getRemainingEthAmount,
 } from "../../services/Web3Service";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
@@ -48,7 +48,7 @@ function PoolLiquidityWidget(props) {
 
   const [liquidityDisabled, setLiquidityDisabled] = React.useState(false);
 
-  const getTokenIcon = tokenAddress => {
+  const getTokenIcon = (tokenAddress) => {
     try {
       return require(`../../assets/tokens/${tokenAddress}/logo.png`);
     } catch (error) {
@@ -84,11 +84,11 @@ function PoolLiquidityWidget(props) {
       await checkAddLiquidityDetails(firstTokenValue, secondTokenValue);
     } else {
       let ethAddress = "";
-      props.allPoolTokens.forEach(poolToken => {
-        poolToken.connectorTokens.forEach(token => {
+      props.allPoolTokens.forEach((poolToken) => {
+        poolToken.connectorTokens.forEach((token) => {
           if (token.info.symbol.toLowerCase() === "eth") {
             ethAddress = token.address;
-            console.log(ethAddress);
+            // console.log(ethAddress);
           }
         });
       });
@@ -97,21 +97,22 @@ function PoolLiquidityWidget(props) {
         props.userAddress,
         false
       );
-      console.log(smartTokenUserBalance);
+      // console.log(smartTokenUserBalance);
       smartTokenUserBalance = getAmountInEth(smartTokenUserBalance);
       setSmartTokenBalance(smartTokenUserBalance);
-      const amount = props.receiptConfig.smartTokenDetails.amount * Math.pow(10,18);
+      const amount =
+        props.receiptConfig.smartTokenDetails.amount * Math.pow(10, 18);
       const smartTokenUserConfig = await checkWithdraw(
         amount,
         props.receiptConfig.smartTokenDetails.token.smartTokenAddress,
-        props.userAddress,
+        props.userAddress
       );
-      console.log(smartTokenUserConfig.check)
-      if(!smartTokenUserConfig.check){
+      // console.log(smartTokenUserConfig.check)
+      if (!smartTokenUserConfig.check) {
         setLiquidityDisabled(true);
         setNote(`You don't have enough Smart Token`);
       }
-      console.log(smartTokenUserConfig);
+      // console.log(smartTokenUserConfig);
       setSmartTokenConfig(smartTokenUserConfig);
       setButton("Withdraw Liquidity");
     }
@@ -134,14 +135,14 @@ function PoolLiquidityWidget(props) {
         props.receiptConfig.smartTokenDetails.token.connectorTokens[1].address;
       let isEthTokenFir = false;
       let isEthTokenSec = false;
-      console.log(firstTokenAddress, secondTokenAddress);
-      props.allPoolTokens.forEach(poolToken => {
-        poolToken.connectorTokens.forEach(token => {
+      // console.log(firstTokenAddress, secondTokenAddress);
+      props.allPoolTokens.forEach((poolToken) => {
+        poolToken.connectorTokens.forEach((token) => {
           if (token.info.symbol.toLowerCase() === "eth") {
             ethAddress = token.address;
             if (ethAddress === firstTokenAddress) isEthTokenFir = true;
             if (ethAddress === secondTokenAddress) isEthTokenSec = true;
-            console.log(ethAddress);
+            // console.log(ethAddress);
           }
         });
       });
@@ -160,7 +161,7 @@ function PoolLiquidityWidget(props) {
       );
       secondTokenUserBalance = getAmountInEth(secondTokenUserBalance);
       secondTokenUserBalance = Number.parseFloat(secondTokenUserBalance);
-      console.log(firstTokenUserBalance, secondTokenUserBalance);
+      // console.log(firstTokenUserBalance, secondTokenUserBalance);
       setFirstTokenBalance(firstTokenUserBalance);
       setSecondTokenBalance(secondTokenUserBalance);
       const firstTokenUserConfig = await checkDeposit(
@@ -185,16 +186,16 @@ function PoolLiquidityWidget(props) {
       setFirstTokenTopupConfig({
         ethAddress,
         firstTokenAddress,
-        isEthTokenFir
+        isEthTokenFir,
       });
 
       setSecondTokenTopupConfig({
         ethAddress,
         secondTokenAddress,
-        isEthTokenSec
+        isEthTokenSec,
       });
 
-      console.log(firstTokenUserConfig, secondTokenUserConfig);
+      // console.log(firstTokenUserConfig, secondTokenUserConfig);
       const checkTokenTopup =
         firstTokenUserConfig.check && secondTokenUserConfig.check;
       const topupValue =
@@ -204,7 +205,7 @@ function PoolLiquidityWidget(props) {
         topupValue,
         props.userAddress
       );
-      console.log(topupValue, checkEthTopup);
+      // console.log(topupValue, checkEthTopup);
       const firstTokenSymbol =
         props.receiptConfig.smartTokenDetails.token.connectorTokens[0].info
           .symbol;
@@ -256,7 +257,7 @@ function PoolLiquidityWidget(props) {
     let isErr = false;
     try {
       if (!firstTokenConfig.check) {
-        console.log(firstTokenConfig.topup);
+        // console.log(firstTokenConfig.topup);
         await swapTokens(
           firstTokenConfig.topup,
           firstTokenTopupConfig.ethAddress,
@@ -266,7 +267,7 @@ function PoolLiquidityWidget(props) {
         );
       }
       if (!secondTokenConfig.check) {
-        console.log(secondTokenConfig.topup);
+        // console.log(secondTokenConfig.topup);
         await swapTokens(
           secondTokenConfig.topup,
           secondTokenTopupConfig.ethAddress,
@@ -280,7 +281,7 @@ function PoolLiquidityWidget(props) {
       props.setModalConfig({
         status: "fail",
         title: "Transaction Failed",
-        message: err.message
+        message: err.message,
       });
       props.setOpenModal(true);
       setTimeout(() => {
@@ -293,7 +294,7 @@ function PoolLiquidityWidget(props) {
         status: "success",
         title: "Transaction Success",
         message:
-          "Your transaction is successfully completed. Please check you account to see your token balance."
+          "Your transaction is successfully completed. Please check you account to see your token balance.",
       });
       props.setOpenModal(true);
       setTimeout(async () => {
@@ -309,12 +310,12 @@ function PoolLiquidityWidget(props) {
       const pTokenDetails = [
         {
           address: firstTokenTopupConfig.firstTokenAddress,
-          amount: firstTokenEthAmount
+          amount: firstTokenEthAmount,
         },
         {
           address: secondTokenTopupConfig.secondTokenAddress,
-          amount: secondTokenEthAmount
-        }
+          amount: secondTokenEthAmount,
+        },
       ];
       if (props.receiptConfig.type.toLowerCase() === "add") {
         await addLiquidity(
@@ -336,7 +337,7 @@ function PoolLiquidityWidget(props) {
       props.setModalConfig({
         status: "fail",
         title: "Transaction Failed",
-        message: err.message
+        message: err.message,
       });
       props.setOpenModal(true);
       setTimeout(() => {
@@ -349,7 +350,7 @@ function PoolLiquidityWidget(props) {
         status: "success",
         title: "Transaction Success",
         message:
-          "Your transaction is successfully completed. Please check you account to see your token balance."
+          "Your transaction is successfully completed. Please check you account to see your token balance.",
       });
       props.setOpenModal(true);
       setTimeout(async () => {
@@ -360,17 +361,17 @@ function PoolLiquidityWidget(props) {
   };
 
   const liquidityAction = async () => {
-
     if (!liquidityDisabled) {
       props.setModalConfig({
         status: "pending",
         title: "Transaction Started",
-        message: "Please confirm your transaction to proceed."
+        message: "Please confirm your transaction to proceed.",
       });
       props.setOpenModal(true);
-      
-      if((props.receiptConfig.type.toLowerCase() === "add")){
-        const checkTokenTopup = firstTokenConfig.check && secondTokenConfig.check;
+
+      if (props.receiptConfig.type.toLowerCase() === "add") {
+        const checkTokenTopup =
+          firstTokenConfig.check && secondTokenConfig.check;
         const topupValue = firstTokenConfig.topup + secondTokenConfig.topup;
         const checkEthTopup = await checkEthForTopUp(
           topupValue,
@@ -383,8 +384,7 @@ function PoolLiquidityWidget(props) {
         } else {
           liquidityCall();
         }
-      }
-      else{
+      } else {
         liquidityCall();
       }
     }
@@ -396,7 +396,7 @@ function PoolLiquidityWidget(props) {
         <div className="widget-header">
           <div
             className="back-button-container"
-            onClick={e => history.push("/liquidity")}
+            onClick={(e) => history.push("/liquidity")}
           >
             <img
               src={require("../../assets/icons/back.svg")}
@@ -429,7 +429,7 @@ function PoolLiquidityWidget(props) {
                   <button
                     type="button"
                     className="moonpay-option"
-                    onClick={e => sendToMoonpay()}
+                    onClick={(e) => sendToMoonpay()}
                   >
                     <span>Top up with Moonpay</span>
                     <span className="right-icon">
@@ -539,7 +539,7 @@ function PoolLiquidityWidget(props) {
                       type="button"
                       className="buy-button"
                       disabled={liquidityDisabled}
-                      onClick={e => liquidityAction()}
+                      onClick={(e) => liquidityAction()}
                     >
                       {button}
                     </button>
@@ -617,7 +617,7 @@ function PoolLiquidityWidget(props) {
                       type="button"
                       className="buy-button"
                       disabled={liquidityDisabled}
-                      onClick={e => liquidityAction()}
+                      onClick={(e) => liquidityAction()}
                     >
                       {button}
                     </button>

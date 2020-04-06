@@ -4,10 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
   faTimes,
-  faChevronRight
+  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { getTokenRate, swapTokens } from "../../services/Web3Service";
 import Loader from "../Loader";
+import TokenList from "../TokenList";
 
 function SwapWidget(props) {
   const [loading, setLoading] = React.useState(true);
@@ -23,7 +24,7 @@ function SwapWidget(props) {
   const [selectedFirstToken, setSelectedFirstToken] = React.useState({});
   const [selectedSecondToken, setSelectedSecondToken] = React.useState({});
 
-  const getTokenIcon = tokenAddress => {
+  const getTokenIcon = (tokenAddress) => {
     try {
       return require(`../../assets/tokens/${tokenAddress}/logo.png`);
     } catch (error) {
@@ -41,7 +42,7 @@ function SwapWidget(props) {
     }
   }, [props.allPoolTokens]);
 
-  const changeToken1Amount = async pValue => {
+  const changeToken1Amount = async (pValue) => {
     setToken1Amount(pValue);
     if (rate) {
       const secTokenValue = Number.parseFloat(rate) * pValue;
@@ -49,7 +50,7 @@ function SwapWidget(props) {
     }
   };
 
-  const changeToken2Amount = async pValue => {
+  const changeToken2Amount = async (pValue) => {
     setToken2Amount(pValue);
     if (rate) {
       const firTokenValue = pValue / Number.parseFloat(rate);
@@ -59,19 +60,26 @@ function SwapWidget(props) {
 
   const getAllTokensList = () => {
     const firstTokensList = props.allPoolTokens.map(
-      token => token.connectorTokens[0]
+      (token) => token.connectorTokens[0]
     );
     const secondTokensList = props.allPoolTokens.map(
-      token => token.connectorTokens[1]
+      (token) => token.connectorTokens[1]
     );
     const allTokenList = [...firstTokensList, ...secondTokensList];
-    const allTokensUniqueList = [];
-    allTokenList.forEach(token => {
+    let allTokensUniqueList = [];
+    allTokenList.forEach((token) => {
       if (
-        !allTokensUniqueList.map(token => token.address).includes(token.address)
+        !allTokensUniqueList
+          .map((token) => token.address)
+          .includes(token.address)
       ) {
         allTokensUniqueList.push(token);
       }
+    });
+    allTokensUniqueList = allTokensUniqueList.sort((a, b) => {
+      return a.info.symbol
+        .toLowerCase()
+        .localeCompare(b.info.symbol.toLowerCase());
     });
     setFirstTokensUniqueList(allTokensUniqueList);
     setSecondTokensUniqueList(allTokensUniqueList);
@@ -95,15 +103,15 @@ function SwapWidget(props) {
     }
   };
 
-  const toggleFirstTokens = pFlag => {
+  const toggleFirstTokens = (pFlag) => {
     setOpenFirstTokensList(pFlag);
   };
 
-  const toggleSecondTokens = pFlag => {
+  const toggleSecondTokens = (pFlag) => {
     setOpenSecondTokensList(pFlag);
   };
 
-  const selectFirstToken = pToken => {
+  const selectFirstToken = (pToken) => {
     setSelectedFirstToken(pToken);
     getSwapRate(pToken, selectedSecondToken);
     setToken1Amount(0);
@@ -111,7 +119,7 @@ function SwapWidget(props) {
     toggleFirstTokens(false);
   };
 
-  const selectSecondToken = pToken => {
+  const selectSecondToken = (pToken) => {
     setSelectedSecondToken(pToken);
     getSwapRate(selectedFirstToken, pToken);
     setToken1Amount(0);
@@ -125,7 +133,7 @@ function SwapWidget(props) {
       props.setModalConfig({
         status: "pending",
         title: "Transaction Started",
-        message: "Please confirm your transaction to proceed."
+        message: "Please confirm your transaction to proceed.",
       });
       props.setOpenModal(true);
       const isEth = selectedFirstToken.info.symbol.toLowerCase() === "eth";
@@ -141,7 +149,7 @@ function SwapWidget(props) {
       props.setModalConfig({
         status: "fail",
         title: "Transaction Failed",
-        message: err.message
+        message: err.message,
       });
       props.setOpenModal(true);
       setTimeout(() => {
@@ -154,7 +162,7 @@ function SwapWidget(props) {
         status: "success",
         title: "Transaction Success",
         message:
-          "Your transaction is successfully completed. Please check you account to see your token balance."
+          "Your transaction is successfully completed. Please check you account to see your token balance.",
       });
       props.setOpenModal(true);
       setTimeout(async () => {
@@ -168,84 +176,22 @@ function SwapWidget(props) {
   return (
     <div className="swap-widget">
       {openFirstTokensList ? (
-        <div
-          className={`widget-select-token-container ${
-            openFirstTokensList ? "selected" : "dismiss"
-          }`}
-        >
-          <div className="widget-header">
-            <h3 className="widget-header-title">Select Token</h3>
-            <div
-              className="select-token-close"
-              onClick={e => toggleFirstTokens(false)}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </div>
-          </div>
-          <div className="tokens-list-container">
-            {firstTokensUniqueList.map((token, i) => (
-              <div
-                className="token-item-container"
-                key={i}
-                onClick={e => selectFirstToken(token)}
-              >
-                <div className="token-item">
-                  <div className="tokens-icon-container">
-                    <img
-                      src={getTokenIcon(token.address)}
-                      alt="token logo"
-                      className="token-logo"
-                    />
-                    <label>{token.info.symbol}</label>
-                  </div>
-                  <div className="next-icon">
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <TokenList
+          openTokensList={openFirstTokensList}
+          tokensUniqueList={firstTokensUniqueList}
+          toggleTokens={toggleFirstTokens}
+          selectToken={selectFirstToken}
+          isSmartTokensList={false}
+        />
       ) : null}
       {openSecondTokensList ? (
-        <div
-          className={`widget-select-token-container ${
-            openSecondTokensList ? "selected" : "dismiss"
-          }`}
-        >
-          <div className="widget-header">
-            <h3 className="widget-header-title">Select Token</h3>
-            <div
-              className="select-token-close"
-              onClick={e => toggleSecondTokens(false)}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </div>
-          </div>
-          <div className="tokens-list-container">
-            {secondTokensUniqueList.map((token, i) => (
-              <div
-                className="token-item-container"
-                key={i}
-                onClick={e => selectSecondToken(token)}
-              >
-                <div className="token-item">
-                  <div className="tokens-icon-container">
-                    <img
-                      src={getTokenIcon(token.address)}
-                      alt="token logo"
-                      className="token-logo"
-                    />
-                    <label>{token.info.symbol}</label>
-                  </div>
-                  <div className="next-icon">
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <TokenList
+          openTokensList={openSecondTokensList}
+          tokensUniqueList={secondTokensUniqueList}
+          toggleTokens={toggleSecondTokens}
+          selectToken={selectSecondToken}
+          isSmartTokensList={false}
+        />
       ) : null}
       {!(openFirstTokensList || openSecondTokensList) ? (
         <div className="widget-main-container">
@@ -268,11 +214,11 @@ function SwapWidget(props) {
                     className="pay-input"
                     placeholder="0.0"
                     value={token1Amount || ""}
-                    onChange={e => changeToken1Amount(e.target.value)}
+                    onChange={(e) => changeToken1Amount(e.target.value)}
                   />
                   <div
                     className="pay-currency-container"
-                    onClick={e => toggleFirstTokens(true)}
+                    onClick={(e) => toggleFirstTokens(true)}
                   >
                     <div className="pay-currency">
                       <img
@@ -300,11 +246,11 @@ function SwapWidget(props) {
                     className="pay-input"
                     placeholder="0.0"
                     value={token2Amount || ""}
-                    onChange={e => changeToken2Amount(e.target.value)}
+                    onChange={(e) => changeToken2Amount(e.target.value)}
                   />
                   <div
                     className="pay-currency-container"
-                    onClick={e => toggleSecondTokens(true)}
+                    onClick={(e) => toggleSecondTokens(true)}
                   >
                     <div className="pay-currency">
                       <img
@@ -324,7 +270,7 @@ function SwapWidget(props) {
                 <button
                   type="button"
                   className="buy-button"
-                  onClick={e => swapResTokens()}
+                  onClick={(e) => swapResTokens()}
                   disabled={
                     selectedSecondToken.address === selectedFirstToken.address
                   }
