@@ -10,10 +10,22 @@
     align-items: center;
     justify-content: space-between;
 
-    .app-logo {
-      height: 48px;
-      width: 48px;
-      border-radius: 6px;
+    .logo-container {
+      display: flex;
+      align-items: center;
+
+      .app-logo {
+        height: 48px;
+        width: 48px;
+        border-radius: 6px;
+      }
+      .logo-title {
+        font-weight: 800;
+        font-size: 32px;
+        text-transform: capitalize;
+        margin-left: 12px;
+        color: #102544;
+      }
     }
 
     .header-tab-container {

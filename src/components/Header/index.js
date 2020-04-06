@@ -11,7 +11,7 @@ function Header(props) {
     const address = await getAccount();
     props.setAddress(address);
   };
-  const getAddressTemplate = address => {
+  const getAddressTemplate = (address) => {
     if (address) {
       return (
         <div className="address-container">
@@ -30,17 +30,21 @@ function Header(props) {
   return (
     <div className="header">
       <div className="header-first-container">
-        <img
-          src="https://gblobscdn.gitbook.com/orgs%2F-LgbH7epoDzyZZsd5KbE%2Favatar.png?generation=1578566725631142&alt=media"
-          alt="logo"
-          className="app-logo"
-        />
+        <div className="logo-container">
+          <img
+            src="https://gblobscdn.gitbook.com/orgs%2F-LgbH7epoDzyZZsd5KbE%2Favatar.png?generation=1578566725631142&alt=media"
+            alt="logo"
+            className="app-logo"
+          />
+          <span className="logo-title">Deficenter</span>
+        </div>
+
         <div className="header-tab-container">
           <div
             className={`header-tab ${
               props.page === "swap" ? "tab-active" : null
             }`}
-            onClick={e => history.push("/swap")}
+            onClick={(e) => history.push("/swap")}
           >
             Swap
           </div>
@@ -48,7 +52,7 @@ function Header(props) {
             className={`header-tab ${
               props.page !== "swap" ? "tab-active" : null
             }`}
-            onClick={e => history.push("/pools")}
+            onClick={(e) => history.push("/pools")}
           >
             Pools
           </div>
