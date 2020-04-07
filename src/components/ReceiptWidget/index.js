@@ -1,6 +1,7 @@
 import React from "react";
 import "./receipt_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getEthExchangeRate } from "../../services/ApiService";
 import {
   faChevronRight,
   faPlus,
@@ -249,8 +250,17 @@ function PoolLiquidityWidget(props) {
 
   const sendToMoonpay = async () => {
     const remEthAmt = await getRemainingEthAmount(ethTopup, props.userAddress);
-    props.setMoonpayAmount(remEthAmt);
-    history.push("/moonpay");
+    // props.setMoonpayAmount(remEthAmt);
+    const ethRate = await getEthExchangeRate();
+    // console.log(ethRate);
+    const ethGBPRate = ethRate["GBP"];
+    // console.log(ethGBPRate, props.ethAmount);
+    const gbpAmount = Number.parseFloat(remEthAmt) * ethGBPRate;
+    console.log(gbpAmount, ethGBPRate, remEthAmt);
+    const url = `https://buy-staging.moonpay.io?apiKey=pk_test_U3wU9qqx87F9EbTVKEnLIIWrhtkeekT&currencyCode=eth&walletAddress=${props.userAddress}&baseCurrencyAmount=${gbpAmount}`;
+    window.open(url, "_blank");
+
+    // history.push("/moonpay");
   };
 
   const topupReserveTokenAmount = async () => {
