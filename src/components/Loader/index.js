@@ -3,7 +3,7 @@ import "./loader.scss";
 
 function Loader(props) {
   return (
-    <div>
+    <div className="loader-container">
       {props.loaderType === "box" ? (
         <div className="loader">
           <div className="boxes">
