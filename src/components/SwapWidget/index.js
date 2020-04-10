@@ -238,6 +238,7 @@ function SwapWidget(props) {
                       placeholder="0.0"
                       value={token1Amount || ""}
                       onChange={(e) => changeToken1Amount(e.target.value)}
+                      autoFocus
                     />
                     {firstTokenLoading ? (
                       <div className="amount-loader">

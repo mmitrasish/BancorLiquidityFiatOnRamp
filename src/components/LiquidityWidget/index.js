@@ -162,6 +162,7 @@ function LiquidityWidget(props) {
                     placeholder="0.0"
                     value={smartTokenAmount || ""}
                     onChange={(e) => changeSmartTokenAmount(e.target.value)}
+                    autoFocus
                   />
                   <div
                     className="pay-currency-container"
