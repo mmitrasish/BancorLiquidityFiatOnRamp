@@ -59,7 +59,7 @@ function SwapWidget(props) {
         selectedSecondToken.address,
         pValue
       );
-    console.log(estimate);
+    // console.log(estimate);
     if (estimate) {
       const bestEstimate = getAmountInEth(estimate.bestRate);
       const txFee = getAmountInEth(estimate.txfee);
@@ -83,7 +83,7 @@ function SwapWidget(props) {
         selectedFirstToken.address,
         pValue
       );
-    console.log(estimate);
+    // console.log(estimate);
     if (estimate) {
       const bestEstimate = getAmountInEth(estimate.bestRate);
       const txFee = getAmountInEth(estimate.txfee);
@@ -147,21 +147,6 @@ function SwapWidget(props) {
     setToken2Amount(0);
     toggleSecondTokens(false);
     setFeesSet(false);
-  };
-
-  const getSwapRate = async (pSourceToken, pTargetToken, pValue) => {
-    return new Promise(async (resolve, reject) => {
-      if (pSourceToken !== pTargetToken) {
-        const estimate = await estimateSwapTokens(
-          pSourceToken,
-          pTargetToken,
-          pValue
-        );
-        setRate(estimate.bestRate);
-        setFee(estimate.txfee);
-        resolve();
-      }
-    });
   };
 
   const swapResTokens = async () => {
