@@ -79,6 +79,7 @@ function TokenList(props) {
             className="header-search-token"
             value={searchText}
             onChange={(e) => searchTextChange(e.target.value)}
+            autoFocus
           />
         </div>
         <div className="tokens-list-container">

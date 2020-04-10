@@ -107,7 +107,11 @@ class App extends React.Component {
       // console.log(page[page.length - 1]);
       this.setState({ page: page[page.length - 1] });
     });
-    this.props.history.push("/pools");
+    if (this.props.location.pathname === "/swap") {
+      this.props.history.push("/swap");
+    } else {
+      this.props.history.push("/pools");
+    }
   };
 
   startProcess = async () => {

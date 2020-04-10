@@ -104,13 +104,40 @@
         display: flex;
         align-items: center;
 
-        .pay-input {
-          border: 0px;
-          outline: none;
+        .input-container {
+          position: relative;
           flex-grow: 1;
-          height: 24px;
-          font-size: 24px;
-          font-weight: 500;
+
+          .pay-input {
+            border: 0px;
+            outline: none;
+            flex-grow: 1;
+            height: 24px;
+            font-size: 24px;
+            font-weight: 500;
+            width: 95%;
+          }
+
+          .amount-loader {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            .loader-container {
+              .lds-ring {
+                width: 26px;
+                height: 26px;
+
+                div {
+                  width: 24px;
+                  height: 24px;
+                  margin: 1px;
+                  border: 3px solid var(--themeColor);
+                  border-color: var(--themeColor) transparent transparent
+                    transparent;
+                }
+              }
+            }
+          }
         }
 
         .pay-currency-container {
@@ -170,6 +197,10 @@
           font-weight: 500;
         }
       }
+    }
+
+    .fees-container {
+      font-weight: 500;
     }
 
     .buy-container {

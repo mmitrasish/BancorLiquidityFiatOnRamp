@@ -1,18 +1,20 @@
 import React from "react";
 import "./swap_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import {
-  faChevronDown,
-  faTimes,
-  faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
-import { getTokenRate, swapTokens } from "../../services/Web3Service";
+  estimateSwapTokens,
+  swapTokens,
+  getAmountInEth,
+} from "../../services/Web3Service";
 import Loader from "../Loader";
 import TokenList from "../TokenList";
 
 function SwapWidget(props) {
   const [loading, setLoading] = React.useState(true);
   const [rate, setRate] = React.useState(0);
+  const [fee, setFee] = React.useState(0);
+
   const [token1Amount, setToken1Amount] = React.useState();
   const [token2Amount, setToken2Amount] = React.useState();
   const [firstTokensUniqueList, setFirstTokensUniqueList] = React.useState([]);
@@ -23,6 +25,9 @@ function SwapWidget(props) {
   const [openSecondTokensList, setOpenSecondTokensList] = React.useState(false);
   const [selectedFirstToken, setSelectedFirstToken] = React.useState({});
   const [selectedSecondToken, setSelectedSecondToken] = React.useState({});
+  const [firstTokenLoading, setFirstTokenLoading] = React.useState(false);
+  const [secondTokenLoading, setSecondTokenLoading] = React.useState(false);
+  const [feesSet, setFeesSet] = React.useState(false);
 
   const getTokenIcon = (tokenAddress) => {
     try {
@@ -44,17 +49,58 @@ function SwapWidget(props) {
 
   const changeToken1Amount = async (pValue) => {
     setToken1Amount(pValue);
-    if (rate) {
-      const secTokenValue = Number.parseFloat(rate) * pValue;
-      setToken2Amount(secTokenValue);
+
+    if (pValue && pValue !== "0" && pValue.indexOf("-") === -1) {
+      setFeesSet(false);
+      setSecondTokenLoading(true);
+      setToken2Amount(0);
+      let estimate = null;
+      if (pValue)
+        estimate = await estimateSwapTokens(
+          selectedFirstToken.address,
+          selectedSecondToken.address,
+          pValue
+        );
+      // console.log(estimate);
+      if (estimate) {
+        const bestEstimate = getAmountInEth(estimate.bestRate);
+        const txFee = getAmountInEth(estimate.txfee);
+        const secTokenValue = Number.parseFloat(bestEstimate);
+        setToken2Amount(secTokenValue);
+        setFee(txFee);
+        setFeesSet(true);
+        setSecondTokenLoading(false);
+      }
+    } else {
+      setToken2Amount(0);
     }
   };
 
   const changeToken2Amount = async (pValue) => {
     setToken2Amount(pValue);
-    if (rate) {
-      const firTokenValue = pValue / Number.parseFloat(rate);
-      setToken1Amount(firTokenValue);
+    if (pValue && pValue !== "0" && pValue.indexOf("-") === -1) {
+      setFeesSet(false);
+      setFirstTokenLoading(true);
+      setToken1Amount(0);
+      let estimate = null;
+      if (pValue)
+        estimate = await estimateSwapTokens(
+          selectedSecondToken.address,
+          selectedFirstToken.address,
+          pValue
+        );
+      // console.log(estimate);
+      if (estimate) {
+        const bestEstimate = getAmountInEth(estimate.bestRate);
+        const txFee = getAmountInEth(estimate.txfee);
+        const secTokenValue = Number.parseFloat(bestEstimate);
+        setToken1Amount(secTokenValue);
+        setFee(txFee);
+        setFeesSet(true);
+        setFirstTokenLoading(false);
+      }
+    } else {
+      setToken1Amount(0);
     }
   };
 
@@ -85,22 +131,7 @@ function SwapWidget(props) {
     setSecondTokensUniqueList(allTokensUniqueList);
     setSelectedFirstToken(allTokensUniqueList[0]);
     setSelectedSecondToken(allTokensUniqueList[1]);
-    getSwapRate(allTokensUniqueList[0], allTokensUniqueList[1]);
-  };
-
-  const getSwapRate = async (pSourceToken, pTargetToken) => {
-    if (pSourceToken.address !== pTargetToken.address) {
-      if (!loading) {
-        setLoading(true);
-      }
-      const rate = await getTokenRate(
-        pSourceToken.address,
-        pTargetToken.address
-      );
-      // console.log(rate);
-      setRate(rate);
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
   const toggleFirstTokens = (pFlag) => {
@@ -113,18 +144,18 @@ function SwapWidget(props) {
 
   const selectFirstToken = (pToken) => {
     setSelectedFirstToken(pToken);
-    getSwapRate(pToken, selectedSecondToken);
     setToken1Amount(0);
     setToken2Amount(0);
     toggleFirstTokens(false);
+    setFeesSet(false);
   };
 
   const selectSecondToken = (pToken) => {
     setSelectedSecondToken(pToken);
-    getSwapRate(selectedFirstToken, pToken);
     setToken1Amount(0);
     setToken2Amount(0);
     toggleSecondTokens(false);
+    setFeesSet(false);
   };
 
   const swapResTokens = async () => {
@@ -207,15 +238,23 @@ function SwapWidget(props) {
                   <label>Deposit</label>
                 </div>
                 <div className="pay-input-container">
-                  <input
-                    type="number"
-                    name="payAmount"
-                    id="payAmount"
-                    className="pay-input"
-                    placeholder="0.0"
-                    value={token1Amount || ""}
-                    onChange={(e) => changeToken1Amount(e.target.value)}
-                  />
+                  <div className="input-container">
+                    <input
+                      type="number"
+                      name="payAmount"
+                      id="payAmount"
+                      className="pay-input"
+                      placeholder="0.0"
+                      value={token1Amount || ""}
+                      onChange={(e) => changeToken1Amount(e.target.value)}
+                      autoFocus
+                    />
+                    {firstTokenLoading ? (
+                      <div className="amount-loader">
+                        <Loader loaderType="circle" />
+                      </div>
+                    ) : null}
+                  </div>
                   <div
                     className="pay-currency-container"
                     onClick={(e) => toggleFirstTokens(true)}
@@ -239,15 +278,22 @@ function SwapWidget(props) {
                   <label>Get</label>
                 </div>
                 <div className="pay-input-container">
-                  <input
-                    type="number"
-                    name="payAmount"
-                    id="payAmount"
-                    className="pay-input"
-                    placeholder="0.0"
-                    value={token2Amount || ""}
-                    onChange={(e) => changeToken2Amount(e.target.value)}
-                  />
+                  <div className="input-container">
+                    <input
+                      type="number"
+                      name="payAmount"
+                      id="payAmount"
+                      className="pay-input"
+                      placeholder="0.0"
+                      value={token2Amount || ""}
+                      onChange={(e) => changeToken2Amount(e.target.value)}
+                    />
+                    {secondTokenLoading ? (
+                      <div className="amount-loader">
+                        <Loader loaderType="circle" />
+                      </div>
+                    ) : null}
+                  </div>
                   <div
                     className="pay-currency-container"
                     onClick={(e) => toggleSecondTokens(true)}
@@ -266,6 +312,12 @@ function SwapWidget(props) {
                   </div>
                 </div>
               </div>
+              {feesSet ? (
+                <div className="fees-container">
+                  Fees: {Number.parseFloat(fee).toFixed(3)}
+                </div>
+              ) : null}
+
               <div className="buy-container">
                 <button
                   type="button"
