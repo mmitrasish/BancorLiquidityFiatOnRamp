@@ -49,49 +49,58 @@ function SwapWidget(props) {
 
   const changeToken1Amount = async (pValue) => {
     setToken1Amount(pValue);
-    setFeesSet(false);
-    setSecondTokenLoading(true);
-    setToken2Amount(0);
-    let estimate = null;
-    if (pValue)
-      estimate = await estimateSwapTokens(
-        selectedFirstToken.address,
-        selectedSecondToken.address,
-        pValue
-      );
-    // console.log(estimate);
-    if (estimate) {
-      const bestEstimate = getAmountInEth(estimate.bestRate);
-      const txFee = getAmountInEth(estimate.txfee);
-      const secTokenValue = Number.parseFloat(bestEstimate);
-      setToken2Amount(secTokenValue);
-      setFee(txFee);
-      setFeesSet(true);
-      setSecondTokenLoading(false);
+
+    if (pValue && pValue !== "0" && pValue.indexOf("-") === -1) {
+      setFeesSet(false);
+      setSecondTokenLoading(true);
+      setToken2Amount(0);
+      let estimate = null;
+      if (pValue)
+        estimate = await estimateSwapTokens(
+          selectedFirstToken.address,
+          selectedSecondToken.address,
+          pValue
+        );
+      // console.log(estimate);
+      if (estimate) {
+        const bestEstimate = getAmountInEth(estimate.bestRate);
+        const txFee = getAmountInEth(estimate.txfee);
+        const secTokenValue = Number.parseFloat(bestEstimate);
+        setToken2Amount(secTokenValue);
+        setFee(txFee);
+        setFeesSet(true);
+        setSecondTokenLoading(false);
+      }
+    } else {
+      setToken2Amount(0);
     }
   };
 
   const changeToken2Amount = async (pValue) => {
     setToken2Amount(pValue);
-    setFeesSet(false);
-    setFirstTokenLoading(true);
-    setToken1Amount(0);
-    let estimate = null;
-    if (pValue)
-      estimate = await estimateSwapTokens(
-        selectedSecondToken.address,
-        selectedFirstToken.address,
-        pValue
-      );
-    // console.log(estimate);
-    if (estimate) {
-      const bestEstimate = getAmountInEth(estimate.bestRate);
-      const txFee = getAmountInEth(estimate.txfee);
-      const secTokenValue = Number.parseFloat(bestEstimate);
-      setToken1Amount(secTokenValue);
-      setFee(txFee);
-      setFeesSet(true);
-      setFirstTokenLoading(false);
+    if (pValue && pValue !== "0" && pValue.indexOf("-") === -1) {
+      setFeesSet(false);
+      setFirstTokenLoading(true);
+      setToken1Amount(0);
+      let estimate = null;
+      if (pValue)
+        estimate = await estimateSwapTokens(
+          selectedSecondToken.address,
+          selectedFirstToken.address,
+          pValue
+        );
+      // console.log(estimate);
+      if (estimate) {
+        const bestEstimate = getAmountInEth(estimate.bestRate);
+        const txFee = getAmountInEth(estimate.txfee);
+        const secTokenValue = Number.parseFloat(bestEstimate);
+        setToken1Amount(secTokenValue);
+        setFee(txFee);
+        setFeesSet(true);
+        setFirstTokenLoading(false);
+      }
+    } else {
+      setToken1Amount(0);
     }
   };
 

@@ -93,10 +93,12 @@ function LiquidityWidget(props) {
 
   const changeSmartTokenAmount = async (pValue) => {
     setSmartTokenAmount(pValue);
-    const firstTokenAmount = Number.parseFloat(pValue) * firTokenRate;
-    setFirTokenAmount(firstTokenAmount);
-    const secondTokenAmount = Number.parseFloat(pValue) * secTokenRate;
-    setSecTokenAmount(secondTokenAmount);
+    if (pValue && pValue !== "0" && pValue.indexOf("-") === -1) {
+      const firstTokenAmount = Number.parseFloat(pValue) * firTokenRate;
+      setFirTokenAmount(firstTokenAmount);
+      const secondTokenAmount = Number.parseFloat(pValue) * secTokenRate;
+      setSecTokenAmount(secondTokenAmount);
+    }
   };
 
   return (
