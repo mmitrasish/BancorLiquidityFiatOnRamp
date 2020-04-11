@@ -3,24 +3,30 @@ import "./token_list.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-function TokenList(props) {
+function TokenList({
+  toggleTokens,
+  openTokensList,
+  tokensUniqueList,
+  selectToken,
+  isSmartTokensList,
+}) {
   const [searchText, setSearchText] = React.useState("");
   const [filteredPoolTokens, setFilteredPoolTokens] = React.useState(
-    props.tokensUniqueList
+    tokensUniqueList
   );
   const wrapperRef = React.useRef(null);
 
   React.useEffect(() => {
     function handleClickOutside(event) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        props.toggleTokens(false);
+        toggleTokens(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [wrapperRef]);
+  }, [wrapperRef, toggleTokens]);
 
   const getTokenIcon = (tokenAddress) => {
     try {
@@ -33,14 +39,14 @@ function TokenList(props) {
   const searchTextChange = (pValue) => {
     setSearchText(pValue);
     let filteredList = [];
-    if (props.isSmartTokensList) {
-      filteredList = props.tokensUniqueList.filter((token) => {
+    if (isSmartTokensList) {
+      filteredList = tokensUniqueList.filter((token) => {
         // console.log(token.symbol, pValue);
         return token.symbol.toLowerCase().indexOf(pValue.toLowerCase()) !== -1;
       });
       setFilteredPoolTokens(filteredList);
     } else {
-      filteredList = props.tokensUniqueList.filter((token) => {
+      filteredList = tokensUniqueList.filter((token) => {
         return (
           token.info.symbol.toLowerCase().indexOf(pValue.toLowerCase()) !== -1
         );
@@ -55,14 +61,14 @@ function TokenList(props) {
     <div ref={wrapperRef} className="token-list-wrapper">
       <div
         className={`widget-select-token-container ${
-          props.openTokensList ? "selected" : "dismiss"
+          openTokensList ? "selected" : "dismiss"
         }`}
       >
         <div className="widget-header">
           <h3 className="widget-header-title">Select Token</h3>
           <div
             className="select-token-close"
-            onClick={(e) => props.toggleTokens(false)}
+            onClick={(e) => toggleTokens(false)}
           >
             <FontAwesomeIcon icon={faTimes} />
           </div>
@@ -87,11 +93,11 @@ function TokenList(props) {
             <div
               className="token-item-container"
               key={i}
-              onClick={(e) => props.selectToken(token)}
+              onClick={(e) => selectToken(token)}
             >
               <div className="token-item">
                 <div className="tokens-icon-container">
-                  {props.isSmartTokensList ? (
+                  {isSmartTokensList ? (
                     <div className="smart-token-connectors-container">
                       <img
                         src={getTokenIcon(token.connectorTokens[0].address)}
@@ -113,7 +119,7 @@ function TokenList(props) {
                   )}
 
                   <label>
-                    {props.isSmartTokensList ? token.symbol : token.info.symbol}
+                    {isSmartTokensList ? token.symbol : token.info.symbol}
                   </label>
                 </div>
                 <div className="next-icon">

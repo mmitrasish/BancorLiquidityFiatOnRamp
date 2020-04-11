@@ -2,11 +2,7 @@ import React from "react";
 import "./receipt_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getEthExchangeRate } from "../../services/ApiService";
-import {
-  faChevronRight,
-  faPlus,
-  faLeaf,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronRight, faPlus } from "@fortawesome/free-solid-svg-icons";
 import {
   calculateFundCost,
   getAmountInEth,
@@ -84,15 +80,6 @@ function PoolLiquidityWidget(props) {
     if (props.receiptConfig.type === "Add") {
       await checkAddLiquidityDetails(firstTokenValue, secondTokenValue);
     } else {
-      let ethAddress = "";
-      props.allPoolTokens.forEach((poolToken) => {
-        poolToken.connectorTokens.forEach((token) => {
-          if (token.info.symbol.toLowerCase() === "eth") {
-            ethAddress = token.address;
-            // console.log(ethAddress);
-          }
-        });
-      });
       let smartTokenUserBalance = await getUserBalance(
         props.receiptConfig.smartTokenDetails.token.smartTokenAddress,
         props.userAddress,
@@ -256,7 +243,7 @@ function PoolLiquidityWidget(props) {
     const ethGBPRate = ethRate["GBP"];
     // console.log(ethGBPRate, props.ethAmount);
     const gbpAmount = Number.parseFloat(remEthAmt) * ethGBPRate;
-    console.log(gbpAmount, ethGBPRate, remEthAmt);
+    // console.log(gbpAmount, ethGBPRate, remEthAmt);
     const url = `https://buy-staging.moonpay.io?apiKey=pk_test_U3wU9qqx87F9EbTVKEnLIIWrhtkeekT&currencyCode=eth&walletAddress=${props.userAddress}&baseCurrencyAmount=${gbpAmount}`;
     window.open(url, "_blank");
 

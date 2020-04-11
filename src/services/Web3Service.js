@@ -206,7 +206,7 @@ export const estimateSwapTokens = async (
     pTargetTokenAddr,
     pInputAmount
   );
-  console.log(pSourceTokenAddr, pTargetTokenAddr);
+  // console.log(pSourceTokenAddr, pTargetTokenAddr);
   const bestRate = paths_rates.bestRate;
   const bestPath = paths_rates.bestPath;
 
@@ -459,7 +459,7 @@ export const checkDeposit = async (
   pIsEth
 ) => {
   let topup;
-  console.log(pWethAddress, "0xc0829421C1d260BD3cB3E0F06cfE2D52db2cE315");
+  // console.log(pWethAddress, "0xc0829421C1d260BD3cB3E0F06cfE2D52db2cE315");
   const balance = await getUserBalance(pTokenAddress, pUserAddress);
   // check = amount < balance;
   const diff = amount - balance;
@@ -476,7 +476,7 @@ export const checkDeposit = async (
       topup = Math.ceil(rate * 1.02); // 2% increament for safe transaction.
     }
     topup = Number.parseFloat(getAmountInEth(topup));
-    console.log(topup);
+    // console.log(topup);
   }
   return { check, topup, diff };
 };

@@ -10,9 +10,13 @@ import {
 import Loader from "../Loader";
 import TokenList from "../TokenList";
 
-function SwapWidget(props) {
+function SwapWidget({
+  allPoolTokens,
+  userAddress,
+  setModalConfig,
+  setOpenModal,
+}) {
   const [loading, setLoading] = React.useState(true);
-  const [rate, setRate] = React.useState(0);
   const [fee, setFee] = React.useState(0);
 
   const [token1Amount, setToken1Amount] = React.useState();
@@ -38,14 +42,44 @@ function SwapWidget(props) {
   };
 
   React.useEffect(() => {
-    if (props.allPoolTokens.length) {
+    const getAllTokensList = () => {
+      const firstTokensList = allPoolTokens.map(
+        (token) => token.connectorTokens[0]
+      );
+      const secondTokensList = allPoolTokens.map(
+        (token) => token.connectorTokens[1]
+      );
+      const allTokenList = [...firstTokensList, ...secondTokensList];
+      let allTokensUniqueList = [];
+      allTokenList.forEach((token) => {
+        if (
+          !allTokensUniqueList
+            .map((token) => token.address)
+            .includes(token.address)
+        ) {
+          allTokensUniqueList.push(token);
+        }
+      });
+      allTokensUniqueList = allTokensUniqueList.sort((a, b) => {
+        return a.info.symbol
+          .toLowerCase()
+          .localeCompare(b.info.symbol.toLowerCase());
+      });
+      setFirstTokensUniqueList(allTokensUniqueList);
+      setSecondTokensUniqueList(allTokensUniqueList);
+      setSelectedFirstToken(allTokensUniqueList[0]);
+      setSelectedSecondToken(allTokensUniqueList[1]);
+      setLoading(false);
+    };
+
+    if (allPoolTokens.length) {
       getAllTokensList();
     } else {
       if (!loading) {
         setLoading(true);
       }
     }
-  }, [props.allPoolTokens]);
+  }, [allPoolTokens, loading]);
 
   const changeToken1Amount = async (pValue) => {
     setToken1Amount(pValue);
@@ -104,36 +138,6 @@ function SwapWidget(props) {
     }
   };
 
-  const getAllTokensList = () => {
-    const firstTokensList = props.allPoolTokens.map(
-      (token) => token.connectorTokens[0]
-    );
-    const secondTokensList = props.allPoolTokens.map(
-      (token) => token.connectorTokens[1]
-    );
-    const allTokenList = [...firstTokensList, ...secondTokensList];
-    let allTokensUniqueList = [];
-    allTokenList.forEach((token) => {
-      if (
-        !allTokensUniqueList
-          .map((token) => token.address)
-          .includes(token.address)
-      ) {
-        allTokensUniqueList.push(token);
-      }
-    });
-    allTokensUniqueList = allTokensUniqueList.sort((a, b) => {
-      return a.info.symbol
-        .toLowerCase()
-        .localeCompare(b.info.symbol.toLowerCase());
-    });
-    setFirstTokensUniqueList(allTokensUniqueList);
-    setSecondTokensUniqueList(allTokensUniqueList);
-    setSelectedFirstToken(allTokensUniqueList[0]);
-    setSelectedSecondToken(allTokensUniqueList[1]);
-    setLoading(false);
-  };
-
   const toggleFirstTokens = (pFlag) => {
     setOpenFirstTokensList(pFlag);
   };
@@ -161,43 +165,43 @@ function SwapWidget(props) {
   const swapResTokens = async () => {
     let isErr = false;
     try {
-      props.setModalConfig({
+      setModalConfig({
         status: "pending",
         title: "Transaction Started",
         message: "Please confirm your transaction to proceed.",
       });
-      props.setOpenModal(true);
+      setOpenModal(true);
       const isEth = selectedFirstToken.info.symbol.toLowerCase() === "eth";
       await swapTokens(
         token1Amount,
         selectedFirstToken.address,
         selectedSecondToken.address,
         isEth,
-        props.userAddress
+        userAddress
       );
     } catch (err) {
       isErr = true;
-      props.setModalConfig({
+      setModalConfig({
         status: "fail",
         title: "Transaction Failed",
         message: err.message,
       });
-      props.setOpenModal(true);
+      setOpenModal(true);
       setTimeout(() => {
-        props.setOpenModal(false);
+        setOpenModal(false);
       }, 5000);
       console.log(err);
     }
     if (!isErr) {
-      props.setModalConfig({
+      setModalConfig({
         status: "success",
         title: "Transaction Success",
         message:
           "Your transaction is successfully completed. Please check you account to see your token balance.",
       });
-      props.setOpenModal(true);
+      setOpenModal(true);
       setTimeout(async () => {
-        props.setOpenModal(false);
+        setOpenModal(false);
         setToken1Amount();
         setToken2Amount();
       }, 5000);
