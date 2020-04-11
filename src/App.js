@@ -9,7 +9,6 @@ import {
   getErc20TokensInfo,
   getSmartTokensSymbol,
   getAccount,
-  getConversionFees,
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
 import SwapWidget from "./components/SwapWidget";

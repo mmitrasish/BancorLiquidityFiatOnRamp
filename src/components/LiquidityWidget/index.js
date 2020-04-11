@@ -1,11 +1,7 @@
 import React from "react";
 import "./liquidity_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChevronDown,
-  faTimes,
-  faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { calculateFundCost, getAmountInEth } from "../../services/Web3Service";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
@@ -15,7 +11,6 @@ function LiquidityWidget(props) {
   let history = useHistory();
   const [tab, setTab] = React.useState(props.config.type);
   const [loading, setLoading] = React.useState(true);
-  const [resAmountLoading, setResAmountLoading] = React.useState(false);
   const [openSmartTokensList, setOpenSmartTokensList] = React.useState(false);
   const [selectedSmartToken, setSelectedSmartToken] = React.useState(
     props.config.token
@@ -192,29 +187,19 @@ function LiquidityWidget(props) {
                       You {tab === "Add" ? "Deposit" : "Withdraw"}
                     </div>
                     <div className="summary-total-amount">
-                      {resAmountLoading ? (
-                        <Loader loaderType="circle" />
-                      ) : (
-                        <div className="res-amount">
-                          <div className="full-summary-tilda">~</div>
-                          <div className="full-summary-item">
-                            <div>
-                              <label>{firTokenAmount.toFixed(2)}</label>{" "}
-                              {
-                                selectedSmartToken.connectorTokens[0].info
-                                  .symbol
-                              }
-                            </div>
-                            <div>
-                              <label>{secTokenAmount.toFixed(2)}</label>{" "}
-                              {
-                                selectedSmartToken.connectorTokens[1].info
-                                  .symbol
-                              }
-                            </div>
+                      <div className="res-amount">
+                        <div className="full-summary-tilda">~</div>
+                        <div className="full-summary-item">
+                          <div>
+                            <label>{firTokenAmount.toFixed(2)}</label>{" "}
+                            {selectedSmartToken.connectorTokens[0].info.symbol}
+                          </div>
+                          <div>
+                            <label>{secTokenAmount.toFixed(2)}</label>{" "}
+                            {selectedSmartToken.connectorTokens[1].info.symbol}
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                   <div className="summary-item">

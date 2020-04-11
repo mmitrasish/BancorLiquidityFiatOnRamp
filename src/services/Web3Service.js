@@ -177,7 +177,7 @@ export const getTokenRate = async (
         targetToken,
         inputAmount
       );
-      
+
       for (const { path, rate } of paths_rates) {
         let amount = Number.parseFloat(web3.utils.toWei(rate + ""));
         if (bestRate < amount) {
@@ -185,7 +185,7 @@ export const getTokenRate = async (
           bestPath = path;
         }
       }
-      bestPath = bestPath.map((token) => token.blockchainId)
+      bestPath = bestPath.map((token) => token.blockchainId);
       await SDK.destroy(sdk);
       return { bestRate, bestPath };
     } else {
@@ -199,14 +199,14 @@ export const getTokenRate = async (
 export const estimateSwapTokens = async (
   pSourceTokenAddr,
   pTargetTokenAddr,
-  pInputAmount,
+  pInputAmount
 ) => {
   const paths_rates = await getTokenRate(
     pSourceTokenAddr,
     pTargetTokenAddr,
     pInputAmount
   );
-  console.log(pSourceTokenAddr, pTargetTokenAddr)
+  console.log(pSourceTokenAddr, pTargetTokenAddr);
   const bestRate = paths_rates.bestRate;
   const bestPath = paths_rates.bestPath;
 
@@ -216,15 +216,12 @@ export const estimateSwapTokens = async (
     BANCOR_NETWORK_ADDRESS
   );
 
-  const inputAmount = web3.utils.toWei(pInputAmount + "")
+  const inputAmount = web3.utils.toWei(pInputAmount + "");
 
   const expectedReturn = await bancorNetworkContract.methods
-    .getReturnByPath(
-      bestPath,
-      inputAmount
-    )
+    .getReturnByPath(bestPath, inputAmount)
     .call();
-    const txfee = expectedReturn[1];
+  const txfee = expectedReturn[1];
   return { bestRate, bestPath, txfee };
 };
 
@@ -311,7 +308,7 @@ export const getLiquidityDepth = async (
   pReserveTokens,
   pSmartTokenOwnerAddress
 ) => {
-  const liquidityDepth = await Promise.all(
+  await Promise.all(
     pReserveTokens.map(async (token) => {
       const reserveBalance = await getReserveBalance(
         token,
@@ -359,7 +356,7 @@ export const calculateFundCost = async (
 export const getBalances = async (pTokens) => {
   const currentState = onboard.getState();
   const walletAddress = currentState.address;
-  const balances = await getAddressBalances(web3, walletAddress, pTokens);
+  await getAddressBalances(web3, walletAddress, pTokens);
   // console.log(balances);
 };
 
@@ -462,7 +459,7 @@ export const checkDeposit = async (
   pIsEth
 ) => {
   let topup;
-  console.log(pWethAddress, "0xc0829421C1d260BD3cB3E0F06cfE2D52db2cE315")
+  console.log(pWethAddress, "0xc0829421C1d260BD3cB3E0F06cfE2D52db2cE315");
   const balance = await getUserBalance(pTokenAddress, pUserAddress);
   // check = amount < balance;
   const diff = amount - balance;
@@ -470,12 +467,16 @@ export const checkDeposit = async (
   const check = !(diff > 0);
   if (!check) {
     if (!pIsEth) {
-      const getRate = await getTokenRate(pTokenAddress, pWethAddress, inputAmount);
+      const getRate = await getTokenRate(
+        pTokenAddress,
+        pWethAddress,
+        inputAmount
+      );
       const rate = getRate.bestRate;
       topup = Math.ceil(rate * 1.02); // 2% increament for safe transaction.
     }
     topup = Number.parseFloat(getAmountInEth(topup));
-    console.log(topup)
+    console.log(topup);
   }
   return { check, topup, diff };
 };
@@ -518,11 +519,11 @@ export const convertTokenDecimals = async (pTokenAddress, pAmount) => {
   return Number.parseFloat(reserveAmountParsed.toString());
 };
 
-export const liquidityDepth = async (
-  pSmartTokenAddress,
-  pReserveToken,
-  pSmartTokenOwnerAddress,
-  pAmount
-) => {
-  const reserveTokens = calculateFundCost;
-};
+// export const liquidityDepth = async (
+//   pSmartTokenAddress,
+//   pReserveToken,
+//   pSmartTokenOwnerAddress,
+//   pAmount
+// ) => {
+//   const reserveTokens = calculateFundCost;
+// };
