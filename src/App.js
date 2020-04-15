@@ -9,7 +9,6 @@ import {
   getErc20TokensInfo,
   getSmartTokensSymbol,
   getAccount,
-  getConversionFees,
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
 import SwapWidget from "./components/SwapWidget";
@@ -107,7 +106,9 @@ class App extends React.Component {
       // console.log(page[page.length - 1]);
       this.setState({ page: page[page.length - 1] });
     });
-    if (this.props.location.pathname === "/swap") {
+    if (this.props.location.pathname === "/") {
+      this.props.history.push("/swap");
+    } else if (this.props.location.pathname === "/swap") {
       this.props.history.push("/swap");
     } else {
       this.props.history.push("/pools");

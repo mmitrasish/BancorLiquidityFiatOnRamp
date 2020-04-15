@@ -1,5 +1,4 @@
 import { changeNetwork } from "../services/Web3Service";
-const process = require("dotenv").config();
 
 const networkConfig = {
   "1": {
