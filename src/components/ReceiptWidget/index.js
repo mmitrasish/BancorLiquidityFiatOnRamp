@@ -250,6 +250,34 @@ function PoolLiquidityWidget(props) {
     // history.push("/moonpay");
   };
 
+  const sendToWyre = async () => {
+    try {
+      let wyreUrlPrefix = "sendwyre";
+      // if (process.env.WYRE_ENV === "dev") {
+      //   wyreUrlPrefix = "testwyre";
+      // }
+      const widgetRedirectUrl = `${window.location.origin}/?isWaitingForPurchase=true`;
+
+      // Define and temporarily save off options used to load the widget
+      const widgetOptions = {
+        dest: `ethereum:${this.proxyAddress}`,
+        destCurrency: "ETH",
+        sourceAmount: this.depositAmount,
+        paymentMethod: "debit-card",
+        redirectUrl: widgetRedirectUrl,
+        accountId: "something",
+      };
+
+      localStorage.setItem("widgetDepositOptions", widgetOptions);
+
+      const url = `https://pay.${wyreUrlPrefix}.com/purchase?dest=${widgetOptions.dest}&destCurrency=${widgetOptions.destCurrency}&sourceAmount=${widgetOptions.sourceAmount}&paymentMethod=${widgetOptions.paymentMethod}&redirectUrl=${widgetOptions.redirectUrl}&accountId=${widgetOptions.accountId}`;
+      window.open(url, "_blank");
+    } catch (err) {
+      console.error(err); // eslint-disable-line no-console
+      // this.notifyUser("negative", err.message);
+    }
+  };
+
   const topupReserveTokenAmount = async () => {
     let isErr = false;
     try {
@@ -417,7 +445,11 @@ function PoolLiquidityWidget(props) {
               </div>
               {props.receiptConfig.type === "Add" ? (
                 <div>
-                  <button type="button" className="wyre-option">
+                  <button
+                    type="button"
+                    className="wyre-option"
+                    onClick={(e) => sendToWyre()}
+                  >
                     <span>Top up with Wyre</span>
                     <span className="right-icon">
                       <FontAwesomeIcon icon={faChevronRight} />
