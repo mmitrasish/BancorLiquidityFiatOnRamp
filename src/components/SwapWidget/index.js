@@ -9,6 +9,7 @@ import {
 } from "../../services/Web3Service";
 import Loader from "../Loader";
 import TokenList from "../TokenList";
+import { getTokenIcon } from "../../utils";
 
 function SwapWidget({
   allPoolTokens,
@@ -32,14 +33,6 @@ function SwapWidget({
   const [firstTokenLoading, setFirstTokenLoading] = React.useState(false);
   const [secondTokenLoading, setSecondTokenLoading] = React.useState(false);
   const [feesSet, setFeesSet] = React.useState(false);
-
-  const getTokenIcon = (tokenAddress) => {
-    try {
-      return require(`../../assets/tokens/${tokenAddress}/logo.png`);
-    } catch (error) {
-      return require(`../../assets/icons/info.png`);
-    }
-  };
 
   React.useEffect(() => {
     const getAllTokensList = () => {

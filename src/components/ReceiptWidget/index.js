@@ -17,6 +17,7 @@ import {
 } from "../../services/Web3Service";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
+import { getTokenIcon } from "../../utils";
 
 function PoolLiquidityWidget(props) {
   let history = useHistory();
@@ -44,14 +45,6 @@ function PoolLiquidityWidget(props) {
   const [button, setButton] = React.useState("");
 
   const [liquidityDisabled, setLiquidityDisabled] = React.useState(false);
-
-  const getTokenIcon = (tokenAddress) => {
-    try {
-      return require(`../../assets/tokens/${tokenAddress}/logo.png`);
-    } catch (error) {
-      return require(`../../assets/icons/info.png`);
-    }
-  };
 
   React.useEffect(() => {
     getReserveTokenAmount();

@@ -30,3 +30,11 @@ export function showError(pValue) {
     appEl.removeChild(alertEl);
   }, 3000);
 }
+
+export const getTokenIcon = (tokenAddress) => {
+  try {
+    return require(`../assets/tokens/${tokenAddress.toLowerCase()}/logo.png`);
+  } catch (error) {
+    return require(`../assets/icons/info.png`);
+  }
+};

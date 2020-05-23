@@ -6,6 +6,7 @@ import { calculateFundCost, getAmountInEth } from "../../services/Web3Service";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
 import TokenList from "../TokenList";
+import { getTokenIcon } from "../../utils";
 
 function LiquidityWidget(props) {
   let history = useHistory();
@@ -20,14 +21,6 @@ function LiquidityWidget(props) {
   const [secTokenRate, setSecTokenRate] = React.useState(0);
   const [firTokenAmount, setFirTokenAmount] = React.useState(0);
   const [secTokenAmount, setSecTokenAmount] = React.useState(0);
-
-  const getTokenIcon = (tokenAddress) => {
-    try {
-      return require(`../../assets/tokens/${tokenAddress}/logo.png`);
-    } catch (error) {
-      return require(`../../assets/icons/info.png`);
-    }
-  };
 
   React.useEffect(() => {
     getReserveTokenAmt();

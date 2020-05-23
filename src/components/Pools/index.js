@@ -1,6 +1,6 @@
 import React from "react";
 import "./pools.scss";
-import { shortenAddress } from "../../utils";
+import { shortenAddress, getTokenIcon } from "../../utils";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
 
@@ -8,13 +8,7 @@ function Pools(props) {
   let history = useHistory();
   const [loading, setLoading] = React.useState(true);
   const [searchText, setSearchText] = React.useState("");
-  const getTokenIcon = (tokenAddress) => {
-    try {
-      return require(`../../assets/tokens/${tokenAddress}/logo.png`);
-    } catch (error) {
-      return require(`../../assets/icons/info.png`);
-    }
-  };
+
   const poolAction = (pFlag, pToken) => {
     const config = {};
     if (pFlag) {

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
   faTimes,
-  faChevronRight
+  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   calculateFundCostRate,
@@ -12,9 +12,9 @@ import {
   addLiquidity,
   withdrawLiquidity,
   calculateFundCost,
-  getAmountInEth
+  getAmountInEth,
 } from "../../services/Web3Service";
-import { showError } from "../../utils/index";
+import { showError, getTokenIcon } from "../../utils";
 import Loader from "../Loader";
 
 function PoolLiquidityWidget(props) {
@@ -41,14 +41,6 @@ function PoolLiquidityWidget(props) {
     props.config.token
   );
   const [smartTokenAmount, setSmartTokenAmount] = React.useState(0);
-
-  const getTokenIcon = tokenAddress => {
-    try {
-      return require(`../../assets/tokens/${tokenAddress}/logo.png`);
-    } catch (error) {
-      return require(`../../assets/icons/info.png`);
-    }
-  };
 
   React.useEffect(() => {
     const abortController = new AbortController();
@@ -132,11 +124,11 @@ function PoolLiquidityWidget(props) {
   const getReserveTokenBalances = async () => {
     await getBalances([
       selectedFirstToken.address,
-      selectedSecondToken.address
+      selectedSecondToken.address,
     ]);
   };
 
-  const changeToken1Amount = async pValue => {
+  const changeToken1Amount = async (pValue) => {
     setToken1Amount(pValue);
     const smartTokenVal = Number.parseFloat(smartTokenRate1) * pValue * 2;
     setSmartTokenAmount(smartTokenVal);
@@ -151,7 +143,7 @@ function PoolLiquidityWidget(props) {
     setToken2Amount(secTokenValue);
   };
 
-  const changeToken2Amount = async pValue => {
+  const changeToken2Amount = async (pValue) => {
     setToken2Amount(pValue);
     const smartTokenVal = Number.parseFloat(smartTokenRate2) * pValue * 2;
     setSmartTokenAmount(smartTokenVal);
@@ -168,13 +160,13 @@ function PoolLiquidityWidget(props) {
 
   const getFirstTokensList = () => {
     const firstTokensList = props.allPoolTokens.map(
-      token => token.connectorTokens[0]
+      (token) => token.connectorTokens[0]
     );
     const firstTokensUniqueList = [];
-    firstTokensList.forEach(token => {
+    firstTokensList.forEach((token) => {
       if (
         !firstTokensUniqueList
-          .map(token => token.address)
+          .map((token) => token.address)
           .includes(token.address)
       ) {
         firstTokensUniqueList.push(token);
@@ -186,13 +178,13 @@ function PoolLiquidityWidget(props) {
   const getSecondTokensList = () => {
     // console.log(props.allPoolTokens);
     const secondTokensList = props.allPoolTokens.map(
-      token => token.connectorTokens[1]
+      (token) => token.connectorTokens[1]
     );
     const secondTokensUniqueList = [];
-    secondTokensList.forEach(token => {
+    secondTokensList.forEach((token) => {
       if (
         !secondTokensUniqueList
-          .map(token => token.address)
+          .map((token) => token.address)
           .includes(token.address)
       ) {
         secondTokensUniqueList.push(token);
@@ -201,24 +193,24 @@ function PoolLiquidityWidget(props) {
     setSecondTokensUniqueList(secondTokensUniqueList);
   };
 
-  const toggleFirstTokens = pFlag => {
+  const toggleFirstTokens = (pFlag) => {
     setOpenFirstTokensList(pFlag);
   };
 
-  const toggleSecondTokens = pFlag => {
+  const toggleSecondTokens = (pFlag) => {
     setOpenSecondTokensList(pFlag);
   };
 
-  const liquidityAction = pTab => {
+  const liquidityAction = (pTab) => {
     const pTokenDetails = [
       {
         address: selectedFirstToken.address,
-        amount: token1Amount
+        amount: token1Amount,
       },
       {
         address: selectedSecondToken.address,
-        amount: token2Amount
-      }
+        amount: token2Amount,
+      },
     ];
     if (pTab.toLowerCase() === "add") {
       addLiquidity(
@@ -242,23 +234,23 @@ function PoolLiquidityWidget(props) {
   const sendToReceipt = () => {
     const liquidityWidgetConfig = {
       type: tab,
-      token: selectedSmartToken
+      token: selectedSmartToken,
     };
     props.setLiquidityPageConfig(liquidityWidgetConfig);
     const receiptConfig = {
       type: tab,
       smartTokenDetails: {
         token: selectedSmartToken,
-        amount: smartTokenAmount
-      }
+        amount: smartTokenAmount,
+      },
     };
     props.setReceiptConfig(receiptConfig);
     props.changePage("receipt");
   };
 
-  const selectFirstToken = pToken => {
+  const selectFirstToken = (pToken) => {
     let flag = false;
-    props.allPoolTokens.forEach(token => {
+    props.allPoolTokens.forEach((token) => {
       if (
         token.connectorTokens[0].address === pToken.address &&
         token.connectorTokens[1].address === selectedSecondToken.address
@@ -275,9 +267,9 @@ function PoolLiquidityWidget(props) {
     }
   };
 
-  const selectSecondToken = pToken => {
+  const selectSecondToken = (pToken) => {
     let flag = false;
-    props.allPoolTokens.forEach(token => {
+    props.allPoolTokens.forEach((token) => {
       if (
         token.connectorTokens[0].address === selectedFirstToken.address &&
         token.connectorTokens[1].address === pToken.address
@@ -307,7 +299,7 @@ function PoolLiquidityWidget(props) {
             <h3 className="widget-header-title">Select Token</h3>
             <div
               className="select-token-close"
-              onClick={e => toggleFirstTokens(false)}
+              onClick={(e) => toggleFirstTokens(false)}
             >
               <FontAwesomeIcon icon={faTimes} />
             </div>
@@ -317,7 +309,7 @@ function PoolLiquidityWidget(props) {
               <div
                 className="token-item-container"
                 key={i}
-                onClick={e => selectFirstToken(token)}
+                onClick={(e) => selectFirstToken(token)}
               >
                 <div className="token-item">
                   <div className="tokens-icon-container">
@@ -347,7 +339,7 @@ function PoolLiquidityWidget(props) {
             <h3 className="widget-header-title">Select Token</h3>
             <div
               className="select-token-close"
-              onClick={e => toggleSecondTokens(false)}
+              onClick={(e) => toggleSecondTokens(false)}
             >
               <FontAwesomeIcon icon={faTimes} />
             </div>
@@ -357,7 +349,7 @@ function PoolLiquidityWidget(props) {
               <div
                 className="token-item-container"
                 key={i}
-                onClick={e => selectSecondToken(token)}
+                onClick={(e) => selectSecondToken(token)}
               >
                 <div className="token-item">
                   <div className="tokens-icon-container">
@@ -382,7 +374,7 @@ function PoolLiquidityWidget(props) {
           <div className="widget-header">
             <div
               className="back-button-container"
-              onClick={e => props.changePage("home")}
+              onClick={(e) => props.changePage("home")}
             >
               <img
                 src={require("../../assets/icons/back.svg")}
@@ -399,14 +391,14 @@ function PoolLiquidityWidget(props) {
           ) : (
             <div>
               <div className="widget-tabs">
-                <div className="tab-item" onClick={e => setTab("Add")}>
+                <div className="tab-item" onClick={(e) => setTab("Add")}>
                   <div
                     className={"tab-link " + (tab === "Add" ? "active" : null)}
                   >
                     Add
                   </div>
                 </div>
-                <div className="tab-item" onClick={e => setTab("Withdraw")}>
+                <div className="tab-item" onClick={(e) => setTab("Withdraw")}>
                   <div
                     className={
                       "tab-link " + (tab === "Withdraw" ? "active" : null)
@@ -428,11 +420,11 @@ function PoolLiquidityWidget(props) {
                     className="pay-input"
                     placeholder="0.0"
                     value={token1Amount || ""}
-                    onChange={e => changeToken1Amount(e.target.value)}
+                    onChange={(e) => changeToken1Amount(e.target.value)}
                   />
                   <div
                     className="pay-currency-container"
-                    onClick={e => toggleFirstTokens(true)}
+                    onClick={(e) => toggleFirstTokens(true)}
                   >
                     <div className="pay-currency">
                       <img
@@ -460,11 +452,11 @@ function PoolLiquidityWidget(props) {
                     className="pay-input"
                     placeholder="0.0"
                     value={token2Amount || ""}
-                    onChange={e => changeToken2Amount(e.target.value)}
+                    onChange={(e) => changeToken2Amount(e.target.value)}
                   />
                   <div
                     className="pay-currency-container"
-                    onClick={e => toggleSecondTokens(true)}
+                    onClick={(e) => toggleSecondTokens(true)}
                   >
                     <div className="pay-currency">
                       <img
@@ -509,7 +501,7 @@ function PoolLiquidityWidget(props) {
                 <button
                   type="button"
                   className="buy-button"
-                  onClick={e => sendToReceipt()}
+                  onClick={(e) => sendToReceipt()}
                 >
                   {tab} Liquidity
                 </button>

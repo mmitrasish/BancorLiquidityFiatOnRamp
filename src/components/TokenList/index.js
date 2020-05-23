@@ -2,7 +2,7 @@ import React from "react";
 import "./token_list.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faChevronRight } from "@fortawesome/free-solid-svg-icons";
-
+import { getTokenIcon } from "../../utils";
 function TokenList({
   toggleTokens,
   openTokensList,
@@ -27,14 +27,6 @@ function TokenList({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [wrapperRef, toggleTokens]);
-
-  const getTokenIcon = (tokenAddress) => {
-    try {
-      return require(`../../assets/tokens/${tokenAddress}/logo.png`);
-    } catch (error) {
-      return require(`../../assets/icons/info.png`);
-    }
-  };
 
   const searchTextChange = (pValue) => {
     setSearchText(pValue);
