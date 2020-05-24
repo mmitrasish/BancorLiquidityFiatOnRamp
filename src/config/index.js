@@ -17,7 +17,7 @@ const networkConfig = {
   },
 };
 
-export let appConfig = networkConfig["1"];
+export let appConfig = networkConfig["3"];
 
 export const setAppConfig = (networkId) => {
   // console.log(networkId);

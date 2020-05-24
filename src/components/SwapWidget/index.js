@@ -90,7 +90,7 @@ function SwapWidget({
         );
       // console.log(estimate);
       if (estimate) {
-        const bestEstimate = getAmountInEth(estimate.bestRate);
+        const bestEstimate = estimate.bestRate;
         const txFee = getAmountInEth(estimate.txfee);
         const secTokenValue = Number.parseFloat(bestEstimate);
         setToken2Amount(secTokenValue);

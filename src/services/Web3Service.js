@@ -11,11 +11,11 @@ import SMART_TOKEN_ABI from "../contracts/SmartToken.json";
 import ERC20_TOKEN_ABI from "../contracts/ERC20Token.json";
 import { appConfig } from "../config";
 
-const SDK = require("bancor-sdk").SDK;
+const BancorSDK = require("bancor-sdk").SDK;
 
 let CONTRACT_REGISTRY_ADDRESS = appConfig.contractRegistryAddress;
 
-let web3;
+let web3 = new Web3(Web3.givenProvider);
 
 const onboard = Onboard({
   dappId: appConfig.onboardId, // [String] The API key created by step one above
@@ -25,11 +25,23 @@ const onboard = Onboard({
       web3 = new Web3(wallet.provider);
     },
   },
+  darkMode: true,
 });
 
 export const changeNetwork = (config) => {
   onboard.config({ networkId: config.networkId });
   CONTRACT_REGISTRY_ADDRESS = config.contractRegistryAddress;
+};
+
+export const getWalletBalance = async () => {
+  const currentState = onboard.getState();
+  const balance = currentState.balance;
+  console.log(balance);
+  let userBalance = "0";
+  if (balance) {
+    userBalance = web3.utils.fromWei(balance);
+  }
+  return userBalance;
 };
 
 export const getAccount = async () => {
@@ -155,9 +167,7 @@ export const getTokenRate = async (
   pInputAmount
 ) => {
   try {
-    let bestPath;
-    let bestRate = web3.utils.toWei(0 + "");
-    const sdk = await SDK.create({
+    const bancorSDK = await BancorSDK.create({
       ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint,
     });
 
@@ -172,22 +182,14 @@ export const getTokenRate = async (
       };
       // const inputAmount = await getAmountInEth(pInputAmount);
       const inputAmount = pInputAmount;
-      const paths_rates = await sdk.getAllPathsAndRates(
+      console.log(inputAmount)
+      const paths_rates = await bancorSDK.pricing.getPathAndRate(
         sourceToken,
         targetToken,
         inputAmount
       );
-
-      for (const { path, rate } of paths_rates) {
-        let amount = Number.parseFloat(web3.utils.toWei(rate + ""));
-        if (bestRate < amount) {
-          bestRate = amount;
-          bestPath = path;
-        }
-      }
-      bestPath = bestPath.map((token) => token.blockchainId);
-      await SDK.destroy(sdk);
-      return { bestRate, bestPath };
+      await BancorSDK.destroy(bancorSDK);
+      return paths_rates;
     } else {
       return 0;
     }
@@ -201,15 +203,17 @@ export const estimateSwapTokens = async (
   pTargetTokenAddr,
   pInputAmount
 ) => {
-  const paths_rates = await getTokenRate(
+  const getPathAndRate = await getTokenRate(
     pSourceTokenAddr,
     pTargetTokenAddr,
     pInputAmount
   );
-  // console.log(pSourceTokenAddr, pTargetTokenAddr);
-  const bestRate = paths_rates.bestRate;
-  const bestPath = paths_rates.bestPath;
 
+  console.log(getPathAndRate);
+
+  const bestRate = getPathAndRate.rate;
+  // console.log(pSourceTokenAddr, pTargetTokenAddr);
+  const bestPath = getPathAndRate.path.map((token) => token.blockchainId);
   const BANCOR_NETWORK_ADDRESS = await getContractAddress("BancorNetwork");
   const bancorNetworkContract = new web3.eth.Contract(
     BANCOR_NETWORK_ABI,
@@ -217,10 +221,11 @@ export const estimateSwapTokens = async (
   );
 
   const inputAmount = web3.utils.toWei(pInputAmount + "");
-
+  
   const expectedReturn = await bancorNetworkContract.methods
     .getReturnByPath(bestPath, inputAmount)
     .call();
+  console.log(expectedReturn);
   const txfee = expectedReturn[1];
   return { bestRate, bestPath, txfee };
 };
@@ -238,12 +243,12 @@ export const swapTokens = async (
     BANCOR_NETWORK_ABI,
     BANCOR_NETWORK_ADDRESS
   );
-  const rate = await getTokenRate(pSourceTokenAddr, pTargetTokenAddr, pAmount);
-  const path = rate.bestPath;
+  const getPathAndRate = await getTokenRate(pSourceTokenAddr, pTargetTokenAddr, pAmount);
+  // const path = getPathAndRate.path;
   const affiliateAccount = "0xEab48A633Ada8565f2cdeB5cDE162909Fd64b749";
   if (pIsEth) {
     const swapEth = await bancorNetworkContract.methods
-      .convert2(path, amount, "1", affiliateAccount, "20000")
+      .convert2(getPathAndRate.path, amount, "1", affiliateAccount, "20000")
       .send({ from: pUserAddress, value: amount });
     return swapEth;
   } else {
@@ -253,7 +258,7 @@ export const swapTokens = async (
       .send({ from: pUserAddress });
 
     const swapT = await bancorNetworkContract.methods
-      .claimAndConvert2(path, amount, "1", affiliateAccount, "20000")
+      .claimAndConvert2(getPathAndRate.path, amount, "1", affiliateAccount, "20000")
       .send({ from: pUserAddress });
     return swapT;
   }
@@ -472,8 +477,8 @@ export const checkDeposit = async (
         pWethAddress,
         inputAmount
       );
-      const rate = getRate.bestRate;
-      topup = Math.ceil(rate * 1.02); // 2% increament for safe transaction.
+      const bestRate = getRate.rate;
+      topup = Math.ceil(bestRate * 1.02); // 2% increament for safe transaction.
     }
     topup = Number.parseFloat(getAmountInEth(topup));
     // console.log(topup);

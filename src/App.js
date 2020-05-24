@@ -121,8 +121,8 @@ class App extends React.Component {
     } else {
       setAppConfig(1);
     }
-    const address = await getAccount();
-    this.changeAddress(address);
+    // const address = await getAccount();
+    // this.changeAddress(address);
     this.getAllPoolItems();
   };
 

@@ -1,9 +1,13 @@
 const Web3 = require("Web3");
-const SDK = require("bancor-sdk").SDK;
+const BancorSDK = require("bancor-sdk").SDK;
 
 const NODE_ADDRESS = "https://mainnet.infura.io/v3/55b4d27b09d64c4c8a6d9e381a51455d";
 const SOURCE_TOKEN = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const TARGET_TOKEN = "0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C";
+const settings = {
+    ethereumNodeEndpoint: NODE_ADDRESS
+};
+
 
 async function rpc(func) {
     while (true) {
@@ -50,7 +54,7 @@ async function symbol(web3, token) {
 
 async function run() {
     const web3 = new Web3(NODE_ADDRESS);
-    const sdk = await SDK.create({ethereumNodeEndpoint: NODE_ADDRESS});
+    let bancorSDK = await BancorSDK.create(settings);
 
     const sourceToken = {blockchainType: "ethereum", blockchainId: SOURCE_TOKEN};
     const targetToken = {blockchainType: "ethereum", blockchainId: TARGET_TOKEN};
@@ -61,7 +65,7 @@ async function run() {
         let bestPath
 
         console.log(i);
-        const paths_rates = await sdk.getAllPathsAndRates(sourceToken, targetToken, i);
+        const paths_rates = await bancorSDK.getAllPathsAndRates(sourceToken, targetToken, i);
         for (const {path, rate} of paths_rates) {
             let amount = Number.parseFloat(web3.utils.toWei(rate + ""));
             if(bestRate<amount){
@@ -76,7 +80,7 @@ async function run() {
         console.log(`${symbols}; ${bestRate}`);
     }
 
-    await SDK.destroy(sdk);
+    await BancorSDK.destroy(bancorSDK);
     if (web3.currentProvider.constructor.name == "WebsocketProvider")
         web3.currentProvider.connection.close();
 }
