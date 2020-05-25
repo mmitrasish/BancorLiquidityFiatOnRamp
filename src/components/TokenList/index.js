@@ -92,19 +92,19 @@ function TokenList({
                   {isSmartTokensList ? (
                     <div className="smart-token-connectors-container">
                       <img
-                        src={getTokenIcon(token.connectorTokens[0].address)}
+                        src={getTokenIcon(token.connectorTokens[0].info.symbol)}
                         alt="token logo"
                         className="token-logo"
                       />
                       <img
-                        src={getTokenIcon(token.connectorTokens[1].address)}
+                        src={getTokenIcon(token.connectorTokens[1].info.symbol)}
                         alt="token logo"
                         className="token-logo"
                       />
                     </div>
                   ) : (
                     <img
-                      src={getTokenIcon(token.address)}
+                      src={getTokenIcon(token.info.symbol)}
                       alt="token logo"
                       className="token-logo"
                     />

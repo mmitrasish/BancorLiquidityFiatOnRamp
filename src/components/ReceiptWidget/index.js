@@ -481,7 +481,10 @@ function PoolLiquidityWidget(props) {
                     >
                       <div>
                         <img
-                          src={getTokenIcon("0x000")}
+                          src={getTokenIcon(
+                            props.receiptConfig.smartTokenDetails.token
+                              .connectorTokens[0].info.symbol
+                          )}
                           alt="token logo"
                           className="token-logo"
                         />
@@ -518,7 +521,10 @@ function PoolLiquidityWidget(props) {
                     >
                       <div>
                         <img
-                          src={getTokenIcon("0x000")}
+                          src={getTokenIcon(
+                            props.receiptConfig.smartTokenDetails.token
+                              .connectorTokens[1].info.symbol
+                          )}
                           alt="token logo"
                           className="token-logo"
                         />
@@ -579,7 +585,9 @@ function PoolLiquidityWidget(props) {
                       >
                         <div>
                           <img
-                            src={getTokenIcon("0x000")}
+                            src={getTokenIcon(
+                              props.receiptConfig.smartTokenDetails.token.symbol
+                            )}
                             alt="token logo"
                             className="token-logo"
                           />

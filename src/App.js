@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.scss";
 import Header from "./components/Header";
+import * as Web3 from "web3";
 import {
   getAllBancorLiquidityPoolTokens,
   getConnectorTokenCount,
@@ -9,6 +10,7 @@ import {
   getErc20TokensInfo,
   getSmartTokensSymbol,
   getAccount,
+  getNetwork,
 } from "./services/Web3Service";
 import Pools from "./components/Pools";
 import SwapWidget from "./components/SwapWidget";
@@ -116,14 +118,21 @@ class App extends React.Component {
   };
 
   startProcess = async () => {
-    if (window.ethereum.networkVersion) {
-      setAppConfig(window.ethereum.networkVersion);
+    console.log(window.ethereum.networkVersion);
+    const networkId = await getNetwork();
+    console.log("Net id", networkId);
+    if (networkId) {
+      setAppConfig(networkId);
     } else {
       setAppConfig(1);
     }
+    this.setState({
+      allPoolTokens: appConfig.poolTokens,
+      filteredPoolTokens: appConfig.poolTokens,
+    });
     // const address = await getAccount();
     // this.changeAddress(address);
-    this.getAllPoolItems();
+    // this.getAllPoolItems();
   };
 
   getAllPoolItems = async (pValue) => {
@@ -167,7 +176,7 @@ class App extends React.Component {
     allTokenDetails = allTokenDetails.sort((a, b) => {
       return a.symbol.toLowerCase().localeCompare(b.symbol.toLowerCase());
     });
-    // console.log(allTokenDetails.length);
+    console.log(JSON.stringify(allTokenDetails));
     this.setState({
       allPoolTokens: allTokenDetails,
       filteredPoolTokens: allTokenDetails,
@@ -228,6 +237,7 @@ class App extends React.Component {
             config={this.state.liquidityPageConfig}
             changePage={this.changePage}
             userAddress={this.state.address}
+            setAddress={this.changeAddress}
             allPoolTokens={this.state.allPoolTokens}
             setReceiptConfig={this.addReceiptConfig}
             setLiquidityPageConfig={this.addLiquidityPageConfig}
@@ -236,6 +246,7 @@ class App extends React.Component {
         {this.state.page === "swap" ? (
           <SwapWidget
             userAddress={this.state.address}
+            setAddress={this.changeAddress}
             allPoolTokens={this.state.allPoolTokens}
             setModalConfig={this.setModalConfig}
             setOpenModal={this.setOpenModal}

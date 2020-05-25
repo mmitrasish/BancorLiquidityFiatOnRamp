@@ -6,6 +6,7 @@ import {
   estimateSwapTokens,
   swapTokens,
   getAmountInEth,
+  getAccount,
 } from "../../services/Web3Service";
 import Loader from "../Loader";
 import TokenList from "../TokenList";
@@ -16,9 +17,10 @@ function SwapWidget({
   userAddress,
   setModalConfig,
   setOpenModal,
+  setAddress,
 }) {
   const [loading, setLoading] = React.useState(true);
-  const [fee, setFee] = React.useState(0);
+  // const [fee, setFee] = React.useState(0);
 
   const [token1Amount, setToken1Amount] = React.useState();
   const [token2Amount, setToken2Amount] = React.useState();
@@ -32,7 +34,7 @@ function SwapWidget({
   const [selectedSecondToken, setSelectedSecondToken] = React.useState({});
   const [firstTokenLoading, setFirstTokenLoading] = React.useState(false);
   const [secondTokenLoading, setSecondTokenLoading] = React.useState(false);
-  const [feesSet, setFeesSet] = React.useState(false);
+  // const [feesSet, setFeesSet] = React.useState(false);
 
   React.useEffect(() => {
     const getAllTokensList = () => {
@@ -78,7 +80,7 @@ function SwapWidget({
     setToken1Amount(pValue);
 
     if (pValue && pValue !== "0" && pValue.indexOf("-") === -1) {
-      setFeesSet(false);
+      // setFeesSet(false);
       setSecondTokenLoading(true);
       setToken2Amount(0);
       let estimate = null;
@@ -91,11 +93,11 @@ function SwapWidget({
       // console.log(estimate);
       if (estimate) {
         const bestEstimate = estimate.bestRate;
-        const txFee = getAmountInEth(estimate.txfee);
+        // const txFee = getAmountInEth(estimate.txfee);
         const secTokenValue = Number.parseFloat(bestEstimate);
         setToken2Amount(secTokenValue);
-        setFee(txFee);
-        setFeesSet(true);
+        // setFee(txFee);
+        // setFeesSet(true);
         setSecondTokenLoading(false);
       }
     } else {
@@ -106,24 +108,26 @@ function SwapWidget({
   const changeToken2Amount = async (pValue) => {
     setToken2Amount(pValue);
     if (pValue && pValue !== "0" && pValue.indexOf("-") === -1) {
-      setFeesSet(false);
+      // setFeesSet(false);
       setFirstTokenLoading(true);
       setToken1Amount(0);
       let estimate = null;
-      if (pValue)
+      if (pValue) {
+        console.log(pValue);
         estimate = await estimateSwapTokens(
           selectedSecondToken.address,
           selectedFirstToken.address,
           pValue
         );
+      }
       // console.log(estimate);
       if (estimate) {
-        const bestEstimate = getAmountInEth(estimate.bestRate);
-        const txFee = getAmountInEth(estimate.txfee);
+        const bestEstimate = estimate.bestRate;
+        // const txFee = getAmountInEth(estimate.txfee);
         const secTokenValue = Number.parseFloat(bestEstimate);
         setToken1Amount(secTokenValue);
-        setFee(txFee);
-        setFeesSet(true);
+        // setFee(txFee);
+        // setFeesSet(true);
         setFirstTokenLoading(false);
       }
     } else {
@@ -144,7 +148,7 @@ function SwapWidget({
     setToken1Amount(0);
     setToken2Amount(0);
     toggleFirstTokens(false);
-    setFeesSet(false);
+    // setFeesSet(false);
   };
 
   const selectSecondToken = (pToken) => {
@@ -152,10 +156,20 @@ function SwapWidget({
     setToken1Amount(0);
     setToken2Amount(0);
     toggleSecondTokens(false);
-    setFeesSet(false);
+    // setFeesSet(false);
   };
 
   const swapResTokens = async () => {
+    if (userAddress) {
+      startSwapToken(userAddress);
+    } else {
+      const address = await getAccount();
+      setAddress(address);
+      startSwapToken(address);
+    }
+  };
+
+  const startSwapToken = async (userAddress) => {
     let isErr = false;
     try {
       setModalConfig({
@@ -258,7 +272,7 @@ function SwapWidget({
                   >
                     <div className="pay-currency">
                       <img
-                        src={getTokenIcon(selectedFirstToken.address)}
+                        src={getTokenIcon(selectedFirstToken.info.symbol)}
                         alt="token logo"
                         className="connector-token-logo"
                       />
@@ -297,7 +311,7 @@ function SwapWidget({
                   >
                     <div className="pay-currency">
                       <img
-                        src={getTokenIcon(selectedSecondToken.address)}
+                        src={getTokenIcon(selectedSecondToken.info.symbol)}
                         alt="token logo"
                         className="connector-token-logo"
                       />
@@ -309,11 +323,11 @@ function SwapWidget({
                   </div>
                 </div>
               </div>
-              {feesSet ? (
+              {/* {feesSet ? (
                 <div className="fees-container">
                   Fees: {Number.parseFloat(fee).toFixed(3)}
                 </div>
-              ) : null}
+              ) : null} */}
 
               <div className="buy-container">
                 <button

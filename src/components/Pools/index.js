@@ -63,8 +63,6 @@ function Pools(props) {
                 <div className="td">Smart Token Symbol</div>
                 <div className="td">Owner</div>
                 <div className="td">Ratio</div>
-                <div className="td">Liquidity Depth</div>
-                <div className="td">Fee</div>
                 <div className="td">Actions</div>
               </div>
             </div>
@@ -77,7 +75,7 @@ function Pools(props) {
                       {token.connectorTokens.map((connectorToken, i) => (
                         <div className="connector-tokens-container" key={i}>
                           <img
-                            src={getTokenIcon(connectorToken.address)}
+                            src={getTokenIcon(connectorToken.info.symbol)}
                             alt="token logo"
                             className="connector-token-logo"
                           />
@@ -90,8 +88,6 @@ function Pools(props) {
                       {shortenAddress(token.ownerAddress)}
                     </div>
                     <div className="td">50 - 50</div>
-                    <div className="td">??</div>
-                    <div className="td">??</div>
                     <div className="td">
                       <span
                         className="action-button withdraw-button"

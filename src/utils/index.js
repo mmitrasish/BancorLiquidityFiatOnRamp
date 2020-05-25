@@ -31,9 +31,9 @@ export function showError(pValue) {
   }, 3000);
 }
 
-export const getTokenIcon = (tokenAddress) => {
+export const getTokenIcon = (tokenSymbol) => {
   try {
-    return require(`../assets/tokens/${tokenAddress.toLowerCase()}/logo.png`);
+    return require(`../assets/tokens/${tokenSymbol.toUpperCase()}/logo.png`);
   } catch (error) {
     return require(`../assets/icons/info.png`);
   }

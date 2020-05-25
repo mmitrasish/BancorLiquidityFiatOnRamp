@@ -28,6 +28,10 @@ const onboard = Onboard({
   darkMode: true,
 });
 
+export const getNetwork = () => {
+  return web3.eth.net.getId();
+};
+
 export const changeNetwork = (config) => {
   onboard.config({ networkId: config.networkId });
   CONTRACT_REGISTRY_ADDRESS = config.contractRegistryAddress;
@@ -171,6 +175,8 @@ export const getTokenRate = async (
       ethereumNodeEndpoint: appConfig.ethereumNodeEndpoint,
     });
 
+    console.log(bancorSDK, pTargetTokenAddr, pSourceTokenAddr);
+
     if (pSourceTokenAddr && pTargetTokenAddr) {
       const sourceToken = {
         blockchainType: "ethereum",
@@ -181,13 +187,15 @@ export const getTokenRate = async (
         blockchainId: pTargetTokenAddr,
       };
       // const inputAmount = await getAmountInEth(pInputAmount);
+      console.log("Entered sdk");
       const inputAmount = pInputAmount;
-      console.log(inputAmount)
+      console.log(inputAmount);
       const paths_rates = await bancorSDK.pricing.getPathAndRate(
         sourceToken,
         targetToken,
         inputAmount
       );
+      console.log(paths_rates);
       await BancorSDK.destroy(bancorSDK);
       return paths_rates;
     } else {
@@ -214,20 +222,21 @@ export const estimateSwapTokens = async (
   const bestRate = getPathAndRate.rate;
   // console.log(pSourceTokenAddr, pTargetTokenAddr);
   const bestPath = getPathAndRate.path.map((token) => token.blockchainId);
-  const BANCOR_NETWORK_ADDRESS = await getContractAddress("BancorNetwork");
-  const bancorNetworkContract = new web3.eth.Contract(
-    BANCOR_NETWORK_ABI,
-    BANCOR_NETWORK_ADDRESS
-  );
+  // const BANCOR_NETWORK_ADDRESS = await getContractAddress("BancorNetwork");
+  // const bancorNetworkContract = new web3.eth.Contract(
+  //   BANCOR_NETWORK_ABI,
+  //   BANCOR_NETWORK_ADDRESS
+  // );
+  // console.log(bancorNetworkContract);
 
-  const inputAmount = web3.utils.toWei(pInputAmount + "");
-  
-  const expectedReturn = await bancorNetworkContract.methods
-    .getReturnByPath(bestPath, inputAmount)
-    .call();
-  console.log(expectedReturn);
-  const txfee = expectedReturn[1];
-  return { bestRate, bestPath, txfee };
+  // const inputAmount = web3.utils.toWei(pInputAmount + "");
+
+  // const expectedReturn = await bancorNetworkContract.methods
+  //   .getReturnByPath(bestPath, inputAmount)
+  //   .call();
+  // console.log(expectedReturn);
+  // const txfee = expectedReturn[1];
+  return { bestRate, bestPath };
 };
 
 export const swapTokens = async (
@@ -243,7 +252,11 @@ export const swapTokens = async (
     BANCOR_NETWORK_ABI,
     BANCOR_NETWORK_ADDRESS
   );
-  const getPathAndRate = await getTokenRate(pSourceTokenAddr, pTargetTokenAddr, pAmount);
+  const getPathAndRate = await getTokenRate(
+    pSourceTokenAddr,
+    pTargetTokenAddr,
+    pAmount
+  );
   // const path = getPathAndRate.path;
   const affiliateAccount = "0xEab48A633Ada8565f2cdeB5cDE162909Fd64b749";
   if (pIsEth) {
@@ -258,7 +271,13 @@ export const swapTokens = async (
       .send({ from: pUserAddress });
 
     const swapT = await bancorNetworkContract.methods
-      .claimAndConvert2(getPathAndRate.path, amount, "1", affiliateAccount, "20000")
+      .claimAndConvert2(
+        getPathAndRate.path,
+        amount,
+        "1",
+        affiliateAccount,
+        "20000"
+      )
       .send({ from: pUserAddress });
     return swapT;
   }

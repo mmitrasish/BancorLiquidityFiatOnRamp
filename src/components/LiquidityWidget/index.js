@@ -2,7 +2,11 @@ import React from "react";
 import "./liquidity_widget.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { calculateFundCost, getAmountInEth } from "../../services/Web3Service";
+import {
+  calculateFundCost,
+  getAmountInEth,
+  getAccount,
+} from "../../services/Web3Service";
 import { useHistory } from "react-router-dom";
 import Loader from "../Loader";
 import TokenList from "../TokenList";
@@ -30,7 +34,17 @@ function LiquidityWidget(props) {
     setOpenSmartTokensList(pFlag);
   };
 
-  const sendToReceipt = () => {
+  const sendToReceipt = async () => {
+    if (props.userAddress) {
+      changeToReceipt();
+    } else {
+      const address = await getAccount();
+      props.setAddress(address);
+      changeToReceipt();
+    }
+  };
+
+  const changeToReceipt = () => {
     const liquidityWidgetConfig = {
       type: tab,
       token: selectedSmartToken,
@@ -160,7 +174,7 @@ function LiquidityWidget(props) {
                   >
                     <div className="pay-currency">
                       <img
-                        src={getTokenIcon(selectedSmartToken.smartTokenAddress)}
+                        src={getTokenIcon(selectedSmartToken.symbol)}
                         alt="token logo"
                         className="connector-token-logo"
                       />

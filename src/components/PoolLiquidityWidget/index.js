@@ -314,7 +314,7 @@ function PoolLiquidityWidget(props) {
                 <div className="token-item">
                   <div className="tokens-icon-container">
                     <img
-                      src={getTokenIcon(token.address)}
+                      src={getTokenIcon(token.info.symbol)}
                       alt="token logo"
                       className="token-logo"
                     />
@@ -354,7 +354,7 @@ function PoolLiquidityWidget(props) {
                 <div className="token-item">
                   <div className="tokens-icon-container">
                     <img
-                      src={getTokenIcon(token.address)}
+                      src={getTokenIcon(token.info.symbol)}
                       alt="token logo"
                       className="token-logo"
                     />
@@ -428,7 +428,7 @@ function PoolLiquidityWidget(props) {
                   >
                     <div className="pay-currency">
                       <img
-                        src={getTokenIcon(selectedFirstToken.address)}
+                        src={getTokenIcon(selectedFirstToken.info.symbol)}
                         alt="token logo"
                         className="connector-token-logo"
                       />
@@ -460,7 +460,7 @@ function PoolLiquidityWidget(props) {
                   >
                     <div className="pay-currency">
                       <img
-                        src={getTokenIcon(selectedSecondToken.address)}
+                        src={getTokenIcon(selectedSecondToken.info.symbol)}
                         alt="token logo"
                         className="connector-token-logo"
                       />
